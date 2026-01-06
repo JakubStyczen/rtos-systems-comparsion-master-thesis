@@ -1,0 +1,7 @@
+1ms;1
+1ms;1
+=== META ===
+QPC_FREQ;10000000
+TIMER_TYPE;TimerQueue
+WINMM;timeBeginPeriod(1)
+=== SERIES ===

@@ -36,9 +36,11 @@ def process_and_plot(file_path):
             else:
                 differences[label] = []
 
+    # dividor = 168
+    dividor = 10_000_000
     processed_data = {}
     for label, values in differences.items():
-        scaled_values = [v / 168 for v in values]
+        scaled_values = [v / dividor for v in values]
             
         scaled_values = scaled_values[2:]
         mean = np.mean(scaled_values)
@@ -48,6 +50,23 @@ def process_and_plot(file_path):
         filtered_values = scaled_values
         processed_data[label] = filtered_values
         print(mean)
+        
+        # ======================== one treshold======================================
+        # scaled_values = [v / dividor for v in values]
+            
+        # scaled_values = scaled_values[2:]
+        # threshold_up = 0.150
+        # threshold_down = 0.05
+        # filtered_values = [v for v in scaled_values if threshold_down <= v <= threshold_up]
+        # mean = np.mean(filtered_values)
+        # ======================== one treshold===================================
+        
+        
+        
+        # filtered_values = [v for v in scaled_values if threshold_down <= v <= threshold_up]
+        # filtered_values = scaled_values
+        # print(mean)
+        # print(filtered_values if label == "100ms" else "")
 
     nonempty_items = [(label, values) for label, values in processed_data.items() if values]
     if not nonempty_items:

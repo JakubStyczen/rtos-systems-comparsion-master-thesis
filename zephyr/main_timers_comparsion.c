@@ -20,6 +20,14 @@
  */
 // static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 
+volatile float x = 1.001f;
+
+void cpu_load_fpu(void)
+{
+    for (int i = 0; i < 5000; i++)
+        x = x * 1.0001f + 0.0001f;
+}
+
 // struct k_timer my_timer;
 extern void fn_clock_50us(struct k_timer *timer_id);
 extern void fn_clock_250us(struct k_timer *timer_id);
@@ -123,6 +131,7 @@ extern void fn_clock_10000us(struct k_timer *timer_id)
     if (count_10000 < 1000)
     {
         uint32_t time = k_cycle_get_32();
+        cpu_load_fpu();
         time_10000[count_10000] = time;
         count_10000++;
     }

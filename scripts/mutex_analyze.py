@@ -18,7 +18,8 @@ with open(filename, "r") as f:
         col1 = float(col1)
         col2 = float(col2)
 
-        divider = 10_000_000
+        # divider = 10_000_000
+        divider = 1000
         # divider = 168
 
         result = (col2 - col1) / divider

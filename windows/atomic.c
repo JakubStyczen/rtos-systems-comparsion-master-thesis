@@ -37,7 +37,7 @@ DWORD WINAPI thread2_func(LPVOID arg)
             printf("Wątek 2: mam mutex %ld\n", idx);
             InterlockedIncrement(&count);
         }
-        Sleep(1);
+        // Sleep(1);
     }
     return 0;
 }

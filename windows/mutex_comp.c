@@ -75,13 +75,6 @@ int main(void)
 
     fclose(f);
 
-    // for (int i = 0; i < SAMPLES; i++)
-    // {
-    //     printf("%lld;%lld\n",
-    //            start[i].QuadPart,
-    //            finish[i].QuadPart);
-    // }
-
     CloseHandle(t1);
     CloseHandle(t2);
     CloseHandle(hMutex);

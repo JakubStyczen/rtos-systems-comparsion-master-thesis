@@ -27,9 +27,9 @@ void *thread1_func(void *arg)
     {
         pthread_mutex_lock(&mutex);
         start[count] = now_ns();
-        printf("First");
+        // printf("First");
         pthread_mutex_unlock(&mutex);
-        // usleep(1);
+        // usleep(2);
     }
     return NULL;
 }
@@ -41,9 +41,9 @@ void *thread2_func(void *arg)
         pthread_mutex_lock(&mutex);
         finish[count] = now_ns();
         count++;
-        printf("Second");
+        // printf("Second");
         pthread_mutex_unlock(&mutex);
-        usleep(1);
+        // usleep(2);
     }
     return NULL;
 }
@@ -63,7 +63,7 @@ int main(void)
     pthread_t t1, t2;
 
     /* przypnij proces do jednego rdzenia */
-    pin_to_cpu(0);
+    // pin_to_cpu(0);
 
     pthread_create(&t1, NULL, thread1_func, NULL);
     pthread_create(&t2, NULL, thread2_func, NULL);
@@ -72,7 +72,7 @@ int main(void)
     pthread_join(t2, NULL);
 
     FILE *f;
-    f = fopen("mutex_linux.csv", "w");
+    f = fopen("linux_mutexes.csv", "w");
     if (!f)
         return -1;
 

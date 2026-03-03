@@ -42,3 +42,13 @@ Project collecting two reference implementations for STM32F439ZI used in the the
 - Both projects target the same MCU to enable timing and behavior comparison between FreeRTOS and Zephyr.
 - FreeRTOS timing measurements can leverage the 3 hardware timers while keeping the 1 kHz scheduler tick intact.
 - The Zephyr demo focuses on reliable UART6 pin assignment for the DS18B20 bridge; incorrect wiring will prevent sensor responses.
+
+
+Kompilacja an ubuntu:
+gcc -02 -pthread
+semaphores by 1_000_000
+mutex nie gwaratnuje na linuxie przelaczenia miedzy watkami
+mutex_raw.c dobry plik do mutexow z synchronizacja zmienna zwykla
+mutexes.c no niby spoko ale duza losowosc przelacznia watkow
+Dla mutexow z printem i bez wydaje sie byc roznica
+dla cond vars troche loteria do namyslenia na pozniej?

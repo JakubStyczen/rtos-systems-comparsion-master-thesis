@@ -31,14 +31,20 @@ void *thread_signal(void *arg)
     {
         pthread_mutex_lock(&mutex);
 
-        ready = 1;
+        while (ready)
+            pthread_cond_wait(&cond, &mutex);
+
         start[count] = now_ns();
-        printf("a");
+
+        // usleep(1);
+        ready = 1;
         pthread_cond_signal(&cond);
+        // printf("a");
         pthread_mutex_unlock(&mutex);
     }
     return NULL;
 }
+
 
 /* Wątek B – czekający */
 void *thread_wait(void *arg)
@@ -51,14 +57,15 @@ void *thread_wait(void *arg)
             pthread_cond_wait(&cond, &mutex);
 
         finish[count] = now_ns();
-        ready = 0;
         count++;
-        printf("B");
+        ready = 0;
+        // usleep(1);
+        pthread_cond_signal(&cond);
+        // printf("B");
         pthread_mutex_unlock(&mutex);
     }
     return NULL;
 }
-
 int main(void)
 {
     pthread_t t1, t2;
@@ -72,7 +79,7 @@ int main(void)
     pthread_join(t2, NULL);
 
     FILE *f;
-    f = fopen("linux_cond_vars_printf.csv", "w");
+    f = fopen("linux_cond_vars.csv", "w");
     if (!f)
         return -1;
 

@@ -37,7 +37,9 @@ def process_and_plot(file_path):
                 differences[label] = []
 
     # dividor = 168
-    dividor = 10_000_000
+    # dividor = 10_000_000
+    # dividor = 1000
+    dividor = 1_000_000
     processed_data = {}
     for label, values in differences.items():
         scaled_values = [v / dividor for v in values]

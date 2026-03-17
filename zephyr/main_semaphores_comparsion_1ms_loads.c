@@ -1,8 +1,8 @@
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
 
-#define SAMPLES 2500
-#define REPEAT 40
+#define SAMPLES 10000
+#define REPEAT 10
 #define STACK 1024
 #define PRIO 1
 
@@ -15,13 +15,23 @@
 #define P5000_T (5000 / BASE_TICK_US)
 #define P10000_T (10000 / BASE_TICK_US)
 
+volatile float x = 1.001f;
+
+void cpu_load_fpu(void)
+{
+    for (int i = 0; i < 3000; i++)
+    {
+        x = x * 1.0001f + 0.0001f;
+    }
+}
+
 /* === semaphores === */
-K_SEM_DEFINE(sem_50, 0, 1);
-K_SEM_DEFINE(sem_250, 0, 1);
-K_SEM_DEFINE(sem_500, 0, 1);
+// K_SEM_DEFINE(sem_50, 0, 1);
+// K_SEM_DEFINE(sem_250, 0, 1);
+// K_SEM_DEFINE(sem_500, 0, 1);
 K_SEM_DEFINE(sem_1000, 0, 1);
-K_SEM_DEFINE(sem_5000, 0, 1);
-K_SEM_DEFINE(sem_10000, 0, 1);
+// K_SEM_DEFINE(sem_5000, 0, 1);
+// K_SEM_DEFINE(sem_10000, 0, 1);
 
 /* === buffers === */
 static uint32_t t_50[SAMPLES];
@@ -43,23 +53,24 @@ static volatile uint32_t tick;
             if (cnt < SAMPLES)                 \
             {                                  \
                 buf[cnt++] = k_cycle_get_32(); \
+                cpu_load_fpu();                \
             }                                  \
         }                                      \
     }
 
-TAKER(take50, sem_50, t_50, c50)
-TAKER(take250, sem_250, t_250, c250)
-TAKER(take500, sem_500, t_500, c500)
+// TAKER(take50, sem_50, t_50, c50)
+// TAKER(take250, sem_250, t_250, c250)
+// TAKER(take500, sem_500, t_500, c500)
 TAKER(take1000, sem_1000, t_1000, c1000)
-TAKER(take5000, sem_5000, t_5000, c5000)
-TAKER(take10000, sem_10000, t_10000, c10000)
+// TAKER(take5000, sem_5000, t_5000, c5000)
+// TAKER(take10000, sem_10000, t_10000, c10000)
 
-K_THREAD_DEFINE(t50, STACK, take50, NULL, NULL, NULL, PRIO, 0, 0);
-K_THREAD_DEFINE(t250, STACK, take250, NULL, NULL, NULL, PRIO, 0, 0);
-K_THREAD_DEFINE(t500, STACK, take500, NULL, NULL, NULL, PRIO, 0, 0);
+// K_THREAD_DEFINE(t50, STACK, take50, NULL, NULL, NULL, PRIO, 0, 0);
+// K_THREAD_DEFINE(t250, STACK, take250, NULL, NULL, NULL, PRIO, 0, 0);
+// K_THREAD_DEFINE(t500, STACK, take500, NULL, NULL, NULL, PRIO, 0, 0);
 K_THREAD_DEFINE(t1000, STACK, take1000, NULL, NULL, NULL, PRIO, 0, 0);
-K_THREAD_DEFINE(t5000, STACK, take5000, NULL, NULL, NULL, PRIO, 0, 0);
-K_THREAD_DEFINE(t10000, STACK, take10000, NULL, NULL, NULL, PRIO, 0, 0);
+// K_THREAD_DEFINE(t5000, STACK, take5000, NULL, NULL, NULL, PRIO, 0, 0);
+// K_THREAD_DEFINE(t10000, STACK, take10000, NULL, NULL, NULL, PRIO, 0, 0);
 
 static struct k_timer master_timer;
 
@@ -67,30 +78,25 @@ static void master_timer_cb(struct k_timer *dummy)
 {
     tick++;
 
-    if (tick % P50_T == 0)
-    {
-        k_sem_give(&sem_50);
-    }
-    if (tick % P250_T == 0)
-    {
-        k_sem_give(&sem_250);
-    }
-    if (tick % P500_T == 0)
-    {
-        k_sem_give(&sem_500);
-    }
+    // if (tick % P50_T == 0) {
+    // 	k_sem_give(&sem_50);
+    // }
+    // if (tick % P250_T == 0) {
+    // 	k_sem_give(&sem_250);
+    // }
+    // if (tick % P500_T == 0) {
+    // 	k_sem_give(&sem_500);
+    // }
     if (tick % P1000_T == 0)
     {
         k_sem_give(&sem_1000);
     }
-    if (tick % P5000_T == 0)
-    {
-        k_sem_give(&sem_5000);
-    }
-    if (tick % P10000_T == 0)
-    {
-        k_sem_give(&sem_10000);
-    }
+    // if (tick % P5000_T == 0) {
+    // 	k_sem_give(&sem_5000);
+    // }
+    // if (tick % P10000_T == 0) {
+    // 	k_sem_give(&sem_10000);
+    // }
 }
 
 static void reset_counters(void)
@@ -109,23 +115,23 @@ int main(void)
 
         k_timer_start(&master_timer, K_NO_WAIT, K_USEC(BASE_TICK_US));
 
-        while (c10000 < SAMPLES)
+        while (c1000 < SAMPLES)
         {
             k_sleep(K_MSEC(10));
         }
 
         k_timer_stop(&master_timer);
 
-        printk("=== REPEAT %d ===\n", r);
+        // printk("=== REPEAT %d ===\n", r);
 
         for (int i = 0; i < SAMPLES; i++)
         {
-            printk("100us;%u\n", t_50[i]);
-            printk("200us;%u\n", t_250[i]);
-            printk("500us;%u\n", t_500[i]);
+            // printk("100us;%u\n", t_50[i]);
+            // printk("200us;%u\n", t_250[i]);
+            // printk("500us;%u\n", t_500[i]);
             printk("1000us;%u\n", t_1000[i]);
-            printk("5000us;%u\n", t_5000[i]);
-            printk("10000us;%u\n", t_10000[i]);
+            // printk("5000us;%u\n", t_5000[i]);
+            // printk("10000us;%u\n", t_10000[i]);
         }
     }
     printk("Finished");

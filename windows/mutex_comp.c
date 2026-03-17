@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define SAMPLES 1000
+#define SAMPLES 100000
 
 HANDLE hMutex;
 static LONG count = 0;
@@ -21,7 +21,7 @@ DWORD WINAPI thread1_func(LPVOID arg)
         {
 
             {
-                printf("Wątek 1: mam mutex %ld\n", count);
+                // printf("Wątek 1: mam mutex %ld\n", count);
                 QueryPerformanceCounter(&start[count]);
                 ReleaseMutex(hMutex);
             }
@@ -37,7 +37,7 @@ DWORD WINAPI thread2_func(LPVOID arg)
         DWORD r = WaitForSingleObject(hMutex, 1);
         if (r == WAIT_OBJECT_0)
         {
-            printf("Wątek 2: mam mutex %ld\n", count);
+            // printf("Wątek 2: mam mutex %ld\n", count);
             QueryPerformanceCounter(&finish[count]);
             count++;
             ReleaseMutex(hMutex);
@@ -62,7 +62,7 @@ int main(void)
     WaitForSingleObject(t2, INFINITE);
 
     FILE *f;
-    f = fopen("mutex_switch.csv", "w");
+    f = fopen("mutex_switch_100k.csv", "w");
     if (!f)
         return -1;
 

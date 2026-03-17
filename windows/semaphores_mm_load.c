@@ -8,6 +8,19 @@
 
 #define SAMPLES 20000
 
+volatile float x = 1.001f;
+
+void cpu_load_fpu(void)
+{
+    for (int i = 0; i < 30; i++)
+    {
+        for (int j = 0; j < 10000; j++)
+        {
+            x = x * 1.0001f + 0.0001f;
+        }
+    }
+}
+
 /* === semaphores === */
 HANDLE sem_1, sem_2, sem_5, sem_10, sem_100;
 
@@ -33,7 +46,8 @@ MMRESULT timer_id;
             LONG i = InterlockedIncrement(&cnt) - 1; \
             if (i < SAMPLES)                         \
                 QueryPerformanceCounter(&buf[i]);    \
-            else if (c100 >= SAMPLES)                \
+            cpu_load_fpu();                          \
+            if (c100 >= SAMPLES)                     \
                 break;                               \
         }                                            \
         return 0;                                    \
@@ -112,8 +126,8 @@ int main(void)
 
     timeEndPeriod(1);
 
-    f = fopen("semaphore_mm_1_2_5_10_100.csv", "w");
-    fprintf(f, "period_ms;timestamp\n");
+    f = fopen("semaphores_load.csv", "w");
+    fprintf(f, "=======\n");
 
     for (int i = 0; i < SAMPLES; i++)
     {

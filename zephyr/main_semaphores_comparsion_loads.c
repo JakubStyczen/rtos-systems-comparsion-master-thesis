@@ -15,6 +15,16 @@
 #define P5000_T (5000 / BASE_TICK_US)
 #define P10000_T (10000 / BASE_TICK_US)
 
+volatile float x = 1.001f;
+
+void cpu_load_fpu(void)
+{
+    for (int i = 0; i < 500; i++)
+    {
+        x = x * 1.0001f + 0.0001f;
+    }
+}
+
 /* === semaphores === */
 K_SEM_DEFINE(sem_50, 0, 1);
 K_SEM_DEFINE(sem_250, 0, 1);
@@ -43,6 +53,7 @@ static volatile uint32_t tick;
             if (cnt < SAMPLES)                 \
             {                                  \
                 buf[cnt++] = k_cycle_get_32(); \
+                cpu_load_fpu();                \
             }                                  \
         }                                      \
     }
@@ -111,12 +122,12 @@ int main(void)
 
         while (c10000 < SAMPLES)
         {
-            k_sleep(K_MSEC(10));
+            k_sleep(K_MSEC(100));
         }
 
         k_timer_stop(&master_timer);
 
-        printk("=== REPEAT %d ===\n", r);
+        // printk("=== REPEAT %d ===\n", r);
 
         for (int i = 0; i < SAMPLES; i++)
         {

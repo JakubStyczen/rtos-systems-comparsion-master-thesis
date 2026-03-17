@@ -3,7 +3,7 @@
 
 #define STACK_SIZE 512
 #define PRIORITY 5
-#define SAMPLES 1000
+#define SAMPLES 20000
 
 K_MUTEX_DEFINE(my_mutex);
 K_CONDVAR_DEFINE(cv1);
@@ -45,10 +45,9 @@ void thread1_func(void *p1, void *p2, void *p3)
             k_mutex_unlock(&my_mutex);
             break;
         }
-
         start[count] = k_cycle_get_32();
         turn = 2;
-
+        printk("Thread 1");
         k_condvar_signal(&cv2);
         k_mutex_unlock(&my_mutex);
     }
@@ -72,9 +71,10 @@ void thread2_func(void *p1, void *p2, void *p3)
         }
 
         finish[count] = k_cycle_get_32();
+
         count++;
         turn = 1;
-
+        printk("Thread 1");
         k_condvar_signal(&cv1);
         k_mutex_unlock(&my_mutex);
     }
@@ -84,12 +84,10 @@ void main(void)
 {
     printk("Start programu\n");
 
-    k_thread_create(&thread1_data, thread1_stack, STACK_SIZE,
-                    thread1_func, NULL, NULL, NULL,
+    k_thread_create(&thread1_data, thread1_stack, STACK_SIZE, thread1_func, NULL, NULL, NULL,
                     PRIORITY, 0, K_NO_WAIT);
 
-    k_thread_create(&thread2_data, thread2_stack, STACK_SIZE,
-                    thread2_func, NULL, NULL, NULL,
+    k_thread_create(&thread2_data, thread2_stack, STACK_SIZE, thread2_func, NULL, NULL, NULL,
                     PRIORITY, 0, K_NO_WAIT);
 
     while (count < SAMPLES)

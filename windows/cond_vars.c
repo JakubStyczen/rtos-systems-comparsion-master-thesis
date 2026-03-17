@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#define SAMPLES 1000
+#define SAMPLES 100000
 
 CRITICAL_SECTION cs;
 CONDITION_VARIABLE cv1;
@@ -83,7 +83,7 @@ int main(void)
     WaitForSingleObject(t1, INFINITE);
     WaitForSingleObject(t2, INFINITE);
 
-    FILE *f = fopen("condvar_switch.csv", "w");
+    FILE *f = fopen("windows_condvar_switch_printf.csv", "w");
     for (int i = 0; i < SAMPLES; i++)
         fprintf(f, "%lld;%lld\n",
                 start[i].QuadPart,

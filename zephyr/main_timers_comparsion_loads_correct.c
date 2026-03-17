@@ -1,8 +1,18 @@
 #include <zephyr/kernel.h>
 #include <zephyr/sys/printk.h>
 
-#define SAMPLES 10000
-#define REPEATS 10
+#define SAMPLES 2500
+#define REPEATS 19
+
+volatile float x = 1.001f;
+
+void cpu_load_fpu(void)
+{
+    for (int i = 0; i < 1000; i++)
+    {
+        x = x * 1.0001f + 0.0001f;
+    }
+}
 
 static uint64_t time_100[SAMPLES], time_200[SAMPLES], time_500[SAMPLES];
 static uint64_t time_1000[SAMPLES], time_5000[SAMPLES], time_10000[SAMPLES];
@@ -18,49 +28,79 @@ static int repeat = 0;
 extern void fn_clock_100us(struct k_timer *timer_id)
 {
     if (count_100 < SAMPLES)
+    {
         time_100[count_100++] = k_cycle_get_64();
+    }
+    cpu_load_fpu();
     if (count_100 == SAMPLES)
+    {
         done_100 = true;
+    }
 }
 
 extern void fn_clock_200us(struct k_timer *timer_id)
 {
     if (count_200 < SAMPLES)
+    {
         time_200[count_200++] = k_cycle_get_64();
+    }
+    cpu_load_fpu();
     if (count_200 == SAMPLES)
+    {
         done_200 = true;
+    }
 }
 
 extern void fn_clock_500us(struct k_timer *timer_id)
 {
     if (count_500 < SAMPLES)
+    {
         time_500[count_500++] = k_cycle_get_64();
+    }
+    cpu_load_fpu();
     if (count_500 == SAMPLES)
+    {
         done_500 = true;
+    }
 }
 
 extern void fn_clock_1000us(struct k_timer *timer_id)
 {
     if (count_1000 < SAMPLES)
+    {
         time_1000[count_1000++] = k_cycle_get_64();
+    }
+    cpu_load_fpu();
     if (count_1000 == SAMPLES)
+    {
         done_1000 = true;
+    }
 }
 
 extern void fn_clock_5000us(struct k_timer *timer_id)
 {
     if (count_5000 < SAMPLES)
+    {
         time_5000[count_5000++] = k_cycle_get_64();
+    }
+    cpu_load_fpu();
     if (count_5000 == SAMPLES)
+    {
         done_5000 = true;
+    }
 }
 
 extern void fn_clock_10000us(struct k_timer *timer_id)
 {
     if (count_10000 < SAMPLES)
+    {
         time_10000[count_10000++] = k_cycle_get_64();
+    }
+    cpu_load_fpu();
     if (count_10000 == SAMPLES)
+    {
         done_10000 = true;
+    }
 }
 
 K_TIMER_DEFINE(my_timer_100us, fn_clock_100us, NULL);
@@ -80,9 +120,10 @@ void logging_thread(void)
             printk("=== SERIES %d ===\n", repeat + 1);
             for (int i = 0; i < SAMPLES; i++)
             {
-                printk("100us;%llu\n200us;%llu\n500us;%llu\n1000us;%llu\n5000us;%llu\n10000us;%llu\n",
-                       time_100[i], time_200[i], time_500[i],
-                       time_1000[i], time_5000[i], time_10000[i]);
+                printk("100us;%llu\n200us;%llu\n500us;%llu\n1000us;%llu\n5000us;%"
+                       "llu\n10000us;%llu\n",
+                       time_100[i], time_200[i], time_500[i], time_1000[i],
+                       time_5000[i], time_10000[i]);
             }
 
             repeat++;
@@ -106,7 +147,9 @@ void logging_thread(void)
 
     printk("All series completed.\n");
     while (1)
+    {
         k_sleep(K_FOREVER);
+    }
 }
 
 K_THREAD_DEFINE(log_thread, 8192, logging_thread, NULL, NULL, NULL, 7, 0, 0);

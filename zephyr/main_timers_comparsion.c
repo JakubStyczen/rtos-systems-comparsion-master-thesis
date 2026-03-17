@@ -131,7 +131,6 @@ extern void fn_clock_10000us(struct k_timer *timer_id)
     if (count_10000 < 1000)
     {
         uint32_t time = k_cycle_get_32();
-        cpu_load_fpu();
         time_10000[count_10000] = time;
         count_10000++;
     }
@@ -140,8 +139,8 @@ extern void fn_clock_10000us(struct k_timer *timer_id)
         k_timer_stop(timer_id);
         for (size_t i = 0; i < 1000; i++)
         {
-            printk("50us;%lu\n", time_50[i]);
-            printk("250us;%lu\n", time_250[i]);
+            printk("100us;%lu\n", time_50[i]);
+            printk("200us;%lu\n", time_250[i]);
             printk("500us;%lu\n", time_500[i]);
             printk("1000us;%lu\n", time_1000[i]);
             printk("5000us;%lu\n", time_5000[i]);

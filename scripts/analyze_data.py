@@ -36,10 +36,10 @@ def process_and_plot(file_path):
             else:
                 differences[label] = []
 
-    # dividor = 168
+    dividor = 168
     # dividor = 10_000_000
     # dividor = 1000
-    dividor = 1_000_000
+    # dividor = 1_000_000
     processed_data = {}
     for label, values in differences.items():
         scaled_values = [v / dividor for v in values]
@@ -49,7 +49,7 @@ def process_and_plot(file_path):
         threshold_up = 1.5 * mean
         threshold_down = 0.1*mean
         filtered_values = [v for v in scaled_values if threshold_down <= v <= threshold_up]
-        filtered_values = scaled_values
+        # filtered_values = scaled_values
         processed_data[label] = filtered_values
         print(mean)
         
@@ -70,7 +70,8 @@ def process_and_plot(file_path):
         # print(mean)
         # print(filtered_values if label == "100ms" else "")
 
-    nonempty_items = [(label, values) for label, values in processed_data.items() if values]
+    nonempty_items = [(label, values) for label, values in processed_data.items()]
+    print(len(nonempty_items))
     if not nonempty_items:
         return
 

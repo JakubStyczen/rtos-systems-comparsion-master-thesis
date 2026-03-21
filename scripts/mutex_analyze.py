@@ -2,6 +2,8 @@ import sys
 import os
 import statistics
 import csv
+import matplotlib.pyplot as plt
+import numpy as np
 
 # ======== Weryfikacja argumentów ========
 if len(sys.argv) != 2:
@@ -11,11 +13,11 @@ if len(sys.argv) != 2:
 filename = sys.argv[1]
 results = []
 
-# divider = 168  # normalizacja czasu, możesz zmienić
+divider = 168  # normalizacja czasu, możesz zmienić
 
 # divider = 10_000_000
 # divider = 1000 # linux divider?
-divider = 10_000 # ms for windows
+# divider = 10_000 # ms for windows
 
 # ======== Wczytanie i przetworzenie danych ========
 with open(filename, "r") as f:
@@ -94,3 +96,38 @@ with open(stats_file, "w", newline="") as f:
     writer.writerow(["P95", p95])
     writer.writerow(["P99", p99])
 print(f"Statystyki zapisane do: {stats_file}")
+
+# ======== Generowanie wykresów ========
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+fig.suptitle(f'Analiza Mutex - {base_name}', fontsize=16, fontweight='bold')
+
+# Wykres 1: Histogram
+ax = axes[0, 0]
+ax.hist(results, bins=50, color='steelblue', alpha=0.7, edgecolor='black')
+ax.axvline(mean_val, color='red', linestyle='--', linewidth=2, label=f'Średnia: {mean_val:.6f}')
+ax.axvline(median_val, color='green', linestyle='--', linewidth=2, label=f'Mediana: {median_val:.6f}')
+ax.set_xlabel('Czas (ms)')
+ax.set_ylabel('Liczba zdarzeń')
+ax.set_title('Histogram rozkładu czasów')
+ax.legend()
+ax.grid(alpha=0.3)
+
+# Wykres 2: Wykres liniowy (chronologiczny)
+ax = axes[0, 1]
+ax.plot(results, linewidth=0.5, color='steelblue', alpha=0.7)
+ax.axhline(mean_val, color='red', linestyle='--', linewidth=1, label=f'Średnia: {mean_val:.6f}')
+ax.axhline(median_val, color='green', linestyle='--', linewidth=1, label=f'Mediana: {median_val:.6f}')
+ax.set_xlabel('Numer próbki')
+ax.set_ylabel('Czas (ms)')
+ax.set_title('Czasowy przebieg wartości')
+ax.legend()
+ax.grid(alpha=0.3)
+
+
+plt.tight_layout()
+
+# Zapis wykresu
+plot_file = os.path.join(output_folder, f"{base_name}_plot.png")
+plt.savefig(plot_file, dpi=300, bbox_inches='tight')
+print(f"Wykres zapisany do: {plot_file}")
+plt.show()

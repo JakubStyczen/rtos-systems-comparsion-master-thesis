@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <time.h>
 
-#define SAMPLES 1000
+#define SAMPLES 100000
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t cv1 = PTHREAD_COND_INITIALIZER;
@@ -18,7 +18,7 @@ uint64_t finish[SAMPLES];
 
 static inline uint64_t now_ns(void) {
     struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+    clock_gettime(CLOCK_REALTIME, &ts);
     return (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
 }
 
@@ -35,7 +35,7 @@ void *thread1_func(void *arg) {
         }
 
         start[count] = now_ns();
-        // printf("Thread 1: got mutex %d\n", count);
+        // printf("Thread 1");
 
         turn = 2;
         pthread_cond_signal(&cv2);
@@ -55,9 +55,9 @@ void *thread2_func(void *arg) {
             pthread_mutex_unlock(&mutex);
             break;
         }
-
+        // printf("Thread 2");
         finish[count] = now_ns();
-        // printf("Thread 2: got mutex %d\n", count);
+
 
         count++;
         turn = 1;
@@ -76,7 +76,7 @@ int main(void) {
     pthread_join(t1, NULL);
     pthread_join(t2, NULL);
 
-    FILE *f = fopen("linux_condvar_pingpong.csv", "w");
+    FILE *f = fopen("linux_condvar.csv", "w");
     if (!f) return -1;
 
     for (int i = 0; i < SAMPLES; i++)

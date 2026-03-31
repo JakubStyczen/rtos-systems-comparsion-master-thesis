@@ -13,6 +13,19 @@
 
 const uint64_t periods_ns[NUM_TIMERS] = {1000000ULL, 2000000ULL, 5000000ULL, 10000000ULL, 100000000ULL}; // 1,2,5,10,100ms
 
+volatile float x = 1.001f;
+
+void cpu_load_fpu(void)
+{
+    for (int i = 0; i < 75; i++)
+    {
+        for (int j = 0; j < 10000; j++)
+        {
+            x = x * 1.000001f + 0.000001f;
+        }
+    }
+}
+
 typedef struct {
     uint64_t period_ns;
     struct timespec ts[SAMPLES];
@@ -27,7 +40,7 @@ atomic_int done = 0;
 void timer_handler(union sigval sv) {
     int id = (int)(intptr_t)sv.sival_ptr;
     timer_data_t *t = &timers[id];
-
+    cpu_load_fpu();
     if (t->idx < SAMPLES) {
         clock_gettime(CLOCK_REALTIME, &t->ts[t->idx]);  // <- tutaj używamy REALTIME
         t->idx++;
@@ -75,7 +88,7 @@ int main(void) {
         timer_delete(timer_ids[i]);
     }
 
-    FILE *f = fopen("linux_timers_series.csv", "w");
+    FILE *f = fopen("linux_timers_series_load.csv", "w");
     if (!f) {
         perror("fopen");
         return 1;

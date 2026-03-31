@@ -52,3 +52,7 @@ mutex_raw.c dobry plik do mutexow z synchronizacja zmienna zwykla
 mutexes.c no niby spoko ale duza losowosc przelacznia watkow
 Dla mutexow z printem i bez wydaje sie byc roznica
 dla cond vars troche loteria do namyslenia na pozniej?
+
+linux 30x10000 malo poszlo 100x10000 timery
+semaphory 50 i 30 dla pojedynczego
+semaphory 50 i 75 dla serii

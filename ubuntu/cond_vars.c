@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <sched.h>
 
-#define ITER 1000
+#define ITER 100000
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t  cond  = PTHREAD_COND_INITIALIZER;
@@ -31,15 +31,16 @@ void *thread_signal(void *arg)
     {
         pthread_mutex_lock(&mutex);
 
-        while (ready)
-            pthread_cond_wait(&cond, &mutex);
+        // while (ready)
+        // pthread_cond_wait(&cond, &mutex);
 
         start[count] = now_ns();
 
         // usleep(1);
-        ready = 1;
+        // ready = 1;
+        printf("aaaaaaaaaaaaaaaaaa");
         pthread_cond_signal(&cond);
-        // printf("a");
+
         pthread_mutex_unlock(&mutex);
     }
     return NULL;
@@ -53,15 +54,15 @@ void *thread_wait(void *arg)
     {
         pthread_mutex_lock(&mutex);
 
-        while (!ready)
-            pthread_cond_wait(&cond, &mutex);
+        // while (!ready)
+        pthread_cond_wait(&cond, &mutex);
 
         finish[count] = now_ns();
         count++;
-        ready = 0;
+        // ready = 0;
         // usleep(1);
-        pthread_cond_signal(&cond);
-        // printf("B");
+        // pthread_cond_signal(&cond);
+        printf("Bbbbbbbbbbbbbbbbb");
         pthread_mutex_unlock(&mutex);
     }
     return NULL;
@@ -79,7 +80,7 @@ int main(void)
     pthread_join(t2, NULL);
 
     FILE *f;
-    f = fopen("linux_cond_vars.csv", "w");
+    f = fopen("linux_condvars_variant_printf.csv", "w");
     if (!f)
         return -1;
 

@@ -45,7 +45,8 @@ def process_and_plot(file_path, generate_plots=True):
                 differences[label] = []
 
     # dividor = 168
-    dividor = 10_000 # windows for ms
+    # dividor = 10_000 # windows for ms
+    dividor = 1_000_000 # linux timers in ms
     processed_data = {}
     stats_data = {}
 

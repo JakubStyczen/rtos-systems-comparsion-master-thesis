@@ -20,7 +20,7 @@ int count = 0;
 static inline uint64_t now_ns(void)
 {
     struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+    clock_gettime(CLOCK_REALTIME, &ts);
     return (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
 }
 
@@ -60,7 +60,7 @@ void *thread1_func(void *arg)
         if (turn == 1)
         {
             start[count] = now_ns();
-            // printf("Wątek 1: mam mutex %ld\n", count);
+            printf("Wątek 1");
             turn = 2;
         }
 
@@ -87,7 +87,7 @@ void *thread2_func(void *arg)
         if (turn == 2)
         {
             finish[count] = now_ns();
-            // printf("Wątek 2: mam mutex %ld\n", count);
+            printf("Wątek 2");
             count++;
             turn = 1;
         }
@@ -108,7 +108,7 @@ int main(void)
     pthread_join(t1, NULL);
     pthread_join(t2, NULL);
 
-    FILE *f = fopen("linux_mutex_raw.csv", "w");
+    FILE *f = fopen("linux_mutex_printf.csv", "w");
     for (int i = 0; i < ITER; i++)
         fprintf(f, "%lu;%lu\n", start[i], finish[i]);
 

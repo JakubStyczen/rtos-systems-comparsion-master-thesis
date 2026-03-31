@@ -8,16 +8,12 @@
 #include <semaphore.h>
 #include <string.h>
 
-#define SAMPLES 40000
-#define NUM_TIMERS 5
+#define SAMPLES 100000
+#define NUM_TIMERS 1
 
 /* okresy: 1,2,5,10,100 ms */
 const uint64_t periods_ns[NUM_TIMERS] = {
     1000000ULL,
-    2000000ULL,
-    5000000ULL,
-    10000000ULL,
-    100000000ULL
 };
 
 sem_t sems[NUM_TIMERS];
@@ -91,7 +87,7 @@ void *timer_thread(void *arg)
             t->idx++;
         }
 
-        if (t->id == 4 && t->idx >= SAMPLES)
+        if (t->id == 0 && t->idx >= SAMPLES)
         {
             finished = 1;
 
@@ -155,7 +151,7 @@ int main()
     }
 
     /* dump wyników */
-FILE *f = fopen("linux_semaphores_series.csv", "w");
+FILE *f = fopen("linux_semaphores_1ms.csv", "w");
 if (!f) {
     perror("fopen");
     return 1;
@@ -180,7 +176,7 @@ for (int i = 0; i < SAMPLES; i++)
 }
 
 fclose(f);
-printf("Zapisano results.csv\n");
+// printf("Zapisano results.csv\n");
 
 
 

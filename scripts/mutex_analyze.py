@@ -13,11 +13,11 @@ if len(sys.argv) != 2:
 filename = sys.argv[1]
 results = []
 
-divider = 168  # normalizacja czasu, możesz zmienić
+# divider = 168  # normalizacja czasu, możesz zmienić
 
 # divider = 10_000_000
-# divider = 1000 # linux divider?
-# divider = 10_000 # ms for windows
+divider = 1_000_000 # linux divider for ms?
+# divider = 10_000 # us for windows
 
 # ======== Wczytanie i przetworzenie danych ========
 with open(filename, "r") as f:

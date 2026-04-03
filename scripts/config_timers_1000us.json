@@ -1,0 +1,33 @@
+{
+    "target_time_us": 1000,
+    "systems": {
+        "Zephyr": {
+            "files": {
+                "Idle": "../logs/zephyr_timers_100k_1ms.log",
+                "Stress": "../logs/zephyr_timers_100k_1ms_stress.log"
+            },
+            "divisor": 168
+        },
+        "FreeRTOS": {
+            "files": {
+                "Idle": "../logs/rtos_timers_100k_1ms.log",
+                "Stress": "../logs/rtos_timers_100k_1ms_stress_8000.log"
+            },
+            "divisor": 168
+        },
+        "Linux": {
+            "files": {
+                "Idle": "../logs/linux_timers_100k_1ms.log",
+                "Stress": "../logs/linux_timers_100k_1ms_stress.log"
+            },
+            "divisor": 1000
+        },
+        "Windows": {
+            "files": {
+                "Idle": "../logs/windows_timers_100k_1ms.log",
+                "Stress": "../logs/windows_timers_100k_1ms_stress.log"
+            },
+            "divisor": 10
+        }
+    }
+}

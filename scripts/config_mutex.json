@@ -1,0 +1,21 @@
+{
+    "target_sync_mechanism": "Mutex Lock",
+    "systems": {
+        "Zephyr": {
+            "file": "../logs/zephyr_mutex.log",
+            "divisor": 168
+        },
+        "FreeRTOS": {
+            "file": "../logs/rtos_mutex.log",
+            "divisor": 168
+        },
+        "Linux": {
+            "file": "../logs/linux_mutex.log",
+            "divisor": 1000
+        },
+        "Windows": {
+            "file": "../logs/windows_mutex.log",
+            "divisor": 10
+        }
+    }
+}

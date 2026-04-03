@@ -1,0 +1,21 @@
+{
+    "target_sync_mechanism": "Condvar Lock",
+    "systems": {
+        "Zephyr": {
+            "file": "../logs/zephyr_condvar.log",
+            "divisor": 168
+        },
+        "FreeRTOS": {
+            "file": "../logs/rtos_notify.log",
+            "divisor": 168
+        },
+        "Linux": {
+            "file": "../logs/linux_condvar.log",
+            "divisor": 1000
+        },
+        "Windows": {
+            "file": "../logs/windows_condvar.log",
+            "divisor": 10
+        }
+    }
+}

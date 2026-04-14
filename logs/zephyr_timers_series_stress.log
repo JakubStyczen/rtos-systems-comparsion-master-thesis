@@ -1,6 +1,3 @@
-=~=~=~=~=~=~=~=~=~=~=~= PuTTY log 2026.03.05 20:19:59 =~=~=~=~=~=~=~=~=~=~=~=
-*** Booting Zephyr OS build v4.2.0-rc3-35-g72dc0e5f0af9 ***
-Timers started
 === SERIES 1 ===
 100us;891332
 200us;913978
@@ -285020,4 +285017,3 @@ Timers started
 1000us;200788392942
 5000us;202468374392
 10000us;204568361597
-All series completed.

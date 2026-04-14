@@ -136,17 +136,17 @@ sns.set_theme(style="whitegrid")
 plt.rcParams['figure.dpi'] = 300
 
 # Plot 1: Violin Plot
-plt.figure(figsize=(10, 6))
-ax = sns.violinplot(data=df_all, x="OS", y="Latency_us", inner="quart", palette="muted")
-ax.set_yscale("log")
-title_violin = f"{sync_mechanism} Latency Distribution"
-if FILTER_OUTLIERS: title_violin += f" (Filter: < {FILTER_LIMIT_US} us)"
-plt.title(title_violin, fontsize=14, pad=15)
-plt.ylabel("Latency [us] (Log Scale)", fontsize=12)
-plt.xlabel("Operating System", fontsize=12)
-plt.tight_layout()
-plt.savefig(os.path.join(RESULTS_DIR, 'plot_violin.png'))
-plt.close()
+# plt.figure(figsize=(10, 6))
+# ax = sns.violinplot(data=df_all, x="OS", y="Latency_us", inner="quart", palette="muted")
+# ax.set_yscale("log")
+# title_violin = f"{sync_mechanism} Latency Distribution"
+# if FILTER_OUTLIERS: title_violin += f" (Filter: < {FILTER_LIMIT_US} us)"
+# plt.title(title_violin, fontsize=14, pad=15)
+# plt.ylabel("Latency [us] (Log Scale)", fontsize=12)
+# plt.xlabel("Operating System", fontsize=12)
+# plt.tight_layout()
+# plt.savefig(os.path.join(RESULTS_DIR, 'plot_violin.png'))
+# plt.close()
 
 # Plot 2: Empirical CDF
 plt.figure(figsize=(10, 6))

@@ -117,18 +117,41 @@ print("\nGenerating plots...")
 sns.set_theme(style="whitegrid")
 plt.rcParams['figure.dpi'] = 300
 
-# Violin Plot (Summary)
-plt.figure(figsize=(12, 6))
-ax = sns.violinplot(data=df_all, x="OS", y="Jitter_us", hue="Load", split=True, inner="quart")
-ax.set_yscale("log")
-title_violin = f"T={target_time_us}us Jitter Distribution: Idle vs Stress"
-if FILTER_OUTLIERS: 
-    title_violin += f" (Filter: < {FILTER_LIMIT_US} us)"
-plt.title(title_violin)
-plt.ylabel("Jitter [us] (Log Scale)")
-plt.xlabel("Operating System")
+# Histogram Plot - 4 subplots with overlaid load states and opacity
+all_systems = list(config["systems"].keys())
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+axes = axes.flatten()
+
+for idx, os_name in enumerate(all_systems):
+    df_os = df_all[df_all['OS'] == os_name].copy()
+    
+    if not df_os.empty:
+        ax = axes[idx]
+        
+        # Get min and max for log bins
+        min_val = max(0.1, df_os['Jitter_us'].min())
+        max_val = max(1.0, df_os['Jitter_us'].max())
+        log_bins = np.logspace(np.log10(min_val), np.log10(max_val), 50)
+        
+        # Plot histogram for each load state with transparency
+        for load_type, color in zip(df_os['Load'].unique(), ['#FF7F0E', '#1F77B4']):
+            df_load = df_os[df_os['Load'] == load_type]['Jitter_us']
+            ax.hist(df_load, bins=log_bins, label=load_type, alpha=0.6, color=color, edgecolor='black', linewidth=0.5)
+        
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+        ax.set_title(f"{os_name} - T={target_time_us}us Jitter Distribution")
+        ax.set_xlabel("Jitter [us] (Log Scale)")
+        ax.set_ylabel("Count (Log Scale)")
+        ax.legend()
+        ax.grid(True, which="both", ls="--", alpha=0.3)
+
+plt.suptitle("Jitter Distribution by Operating System (Overlaid by Load State)", fontsize=16, y=0.995)
+if FILTER_OUTLIERS:
+    plt.suptitle(f"Jitter Distribution by Operating System (Filter: < {FILTER_LIMIT_US} us)", 
+                 fontsize=16, y=0.995)
 plt.tight_layout()
-plt.savefig(os.path.join(RESULTS_DIR, 'violin_comparison.png'))
+plt.savefig(os.path.join(RESULTS_DIR, 'violin_comparison.png'), dpi=300, bbox_inches='tight')
 plt.close()
 
 # Loop through load states for ECDF and Histograms

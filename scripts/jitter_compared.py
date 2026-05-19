@@ -96,6 +96,15 @@ if not dataframes:
 df_all = pd.concat(dataframes, ignore_index=True)
 df_all['OS'] = pd.Categorical(df_all['OS'], categories=list(config["systems"].keys()), ordered=True)
 
+# Znajdź najmniejszą wartość > 0 w danych (minimum 0.001)
+min_nonzero_value = max(0.001, df_all[df_all['Jitter_us'] > 0]['Jitter_us'].min())
+if pd.isna(min_nonzero_value):
+    min_nonzero_value = 0.001  # Fallback jeśli wszystkie wartości to zera
+
+print(f"Found minimum non-zero jitter value: {min_nonzero_value:.6f} us")
+
+# Zamieniamy idealne zera na najmniejszą zliczoną próbkę czasu
+df_all['Jitter_us'] = df_all['Jitter_us'].replace(0.0, min_nonzero_value)
 # ==========================================
 # 4. SUMMARY STATISTICS
 # ==========================================
@@ -104,7 +113,7 @@ stats = df_all.groupby(['OS', 'Load'])['Jitter_us'].agg(
     P90=lambda x: x.quantile(0.90), P95=lambda x: x.quantile(0.95), 
     P99=lambda x: x.quantile(0.99), P99_9=lambda x: x.quantile(0.999), 
     Max='max', Std='std'
-).round(2)
+).round(3)
 
 stats.to_csv(os.path.join(RESULTS_DIR, 'summary_statistics.csv'))
 print("\n=== SUMMARY STATISTICS ===")
@@ -128,8 +137,8 @@ for idx, os_name in enumerate(all_systems):
     if not df_os.empty:
         ax = axes[idx]
         
-        # Get min and max for log bins
-        min_val = max(0.1, df_os['Jitter_us'].min())
+        # Get min and max for log bins (minimum ograniczone do 0.1)
+        min_val = max(min_nonzero_value, df_os['Jitter_us'].min())
         max_val = max(1.0, df_os['Jitter_us'].max())
         log_bins = np.logspace(np.log10(min_val), np.log10(max_val), 50)
         
@@ -175,17 +184,28 @@ for load_type in load_states:
 
     # Histogram Plot
     plt.figure(figsize=(10, 6))
-    min_val = max(0.1, df_load['Jitter_us'].min())
+    # --- POPRAWKA: Rozszerzamy granice koszyków, aby zamknąć wykres ---
+    min_val = max(min_nonzero_value, df_load['Jitter_us'].min())
     max_val = max(1.0, df_load['Jitter_us'].max())
-    log_bins = np.logspace(np.log10(min_val), np.log10(max_val), 100)
+    
+    # Mnożymy i dzielimy przez 2 (lub inny margines), aby stworzyć "puste" koszyki na bokach
+    # Dzięki temu linia schodkowa naturalnie spadnie do zera (osi X)
+    lower_bound = min_val * 0.5
+    upper_bound = max_val * 2.0
+    
+    log_bins = np.logspace(np.log10(lower_bound), np.log10(upper_bound), 100)
     
     ax = sns.histplot(data=df_load, x="Jitter_us", hue="OS", 
                       element="step", fill=False, bins=log_bins, linewidth=2)
     ax.set_xscale("log")
     ax.set_yscale("log")
+    # --- BLOKADA OSI X ---
+    # ax.set_xlim(left=0.08)
+    # ---------------------
     plt.title(f"Jitter Histogram - State: {load_type} (Log-Log Scale)")
-    plt.xlabel("Jitter [us] (Log Scale)")
-    plt.ylabel("Count (Log Scale)")
+    plt.title(f"Jitter Histogram - State: {load_type} (Log-Log Scale)")
+    plt.xlabel("Jitter [us]")
+    plt.ylabel("Count")
     plt.grid(True, which="both", ls="--", alpha=0.5)
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, f'histogram_{load_type.lower()}.png'))

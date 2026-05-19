@@ -4,7 +4,7 @@
         "Zephyr": {
             "files": {
                 "Idle": "../logs/zephyr_semaphore_100k_1ms.log",
-                "Stress": "../logs/zephyr_semaphore_100k_1ms_stress.log"
+                "Stress": "../logs/zephyr_semaphore_100k_1ms_stress_3000.log"
             },
             "divisor": 168
         },
@@ -15,7 +15,7 @@
             },
             "divisor": 168
         },
-        "Linux": {
+        "Ubuntu": {
             "files": {
                 "Idle": "../logs/linux_semaphore_100k_1ms.log",
                 "Stress": "../logs/linux_semaphore_100k_1ms_stress_30.log"

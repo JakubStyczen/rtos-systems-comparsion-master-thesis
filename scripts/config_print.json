@@ -9,8 +9,8 @@
             "file": "../logs/rtos_notify_printf.log",
             "divisor": 168
         },
-        "Linux": {
-            "file": "../logs/linux_condvar_printf.log",
+        "Ubuntu": {
+            "file": "../logs/linux_condvar_printf.csv",
             "divisor": 1000
         },
         "Windows": {

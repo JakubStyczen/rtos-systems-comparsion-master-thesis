@@ -10,12 +10,12 @@
         },
         "FreeRTOS": {
             "files": {
-                "Idle": "../logs/rtos_timers_100k_1ms.log",
-                "Stress": "../logs/rtos_timers_100k_1ms_stress_8000.log"
+                "Idle": "../logs/rtos_timers_100k_1ms_idle.log",
+                "Stress": "../logs/rtos_timers_100k_1ms_stress_8000_combined.log"
             },
             "divisor": 168
         },
-        "Linux": {
+        "Ubuntu": {
             "files": {
                 "Idle": "../logs/linux_timers_100k_1ms.log",
                 "Stress": "../logs/linux_timers_100k_1ms_stress.log"

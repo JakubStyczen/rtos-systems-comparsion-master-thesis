@@ -9,8 +9,8 @@
             "file": "../logs/rtos_mutex.log",
             "divisor": 168
         },
-        "Linux": {
-            "file": "../logs/linux_mutex.log",
+        "Ubuntu": {
+            "file": "../logs/linux_mutex.csv",
             "divisor": 1000
         },
         "Windows": {

@@ -16,7 +16,7 @@
                 "Stress": "../logs/rtos_timers_series_stress.log"
             }
         },
-        "Linux": {
+        "Ubuntu": {
             "group": "GPOS",
             "divisor": 1000,
             "files": {

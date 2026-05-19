@@ -19,6 +19,8 @@ parser.add_argument('-f', '--filter', action='store_true',
                     help='Enable outlier filtering')
 parser.add_argument('-l', '--limit', type=int, default=10000, 
                     help='Jitter cut-off limit in microseconds (default: 10000)')
+parser.add_argument('--ymax', type=float, default=None, 
+                    help='Maximum value for Y-axis (default: auto)')
 
 args = parser.parse_args()
 
@@ -26,6 +28,7 @@ FILTER_OUTLIERS = args.filter
 FILTER_LIMIT_US = args.limit
 RESULTS_DIR = args.output
 CONFIG_FILE = args.conf
+Y_MAX = args.ymax
 
 # Setup output directory
 os.makedirs(RESULTS_DIR, exist_ok=True)
@@ -110,6 +113,16 @@ for os_name, os_data in config["systems"].items():
 
 df_final = pd.concat(all_data, ignore_index=True)
 
+# Znajdź najmniejszą wartość > 0 w danych (minimum 0.001)
+min_nonzero_value = max(0.001, df_final[df_final['Jitter_us'] > 0]['Jitter_us'].min())
+if pd.isna(min_nonzero_value):
+    min_nonzero_value = 0.001  # Fallback jeśli wszystkie wartości to zera
+
+print(f"Found minimum non-zero jitter value: {min_nonzero_value:.6f} us")
+
+# Zamieniamy idealne zera na najmniejszą zliczoną próbkę czasu
+df_final['Jitter_us'] = df_final['Jitter_us'].replace(0.0, min_nonzero_value)
+
 # ==========================================
 # EKSPORT STATYSTYK DO OPTYMALIZACJI WYKRESÓW
 # ==========================================
@@ -143,6 +156,36 @@ print(ai_stats.to_markdown())
 print("-" * 60)
 print("\n")
 
+# ==========================================
+# STATYSTYKI INDYWIDUALNE DLA KAŻDEGO TIMERA
+# ==========================================
+print("\n=== STATYSTYKI INDYWIDUALNE DLA KAŻDEGO TIMERA ===")
+
+timer_stats = df_final.groupby(['OS', 'Load', 'Target_us'])['Jitter_us'].agg(
+    Min='min',
+    Q1=q1,
+    Mediana='median',
+    Q3=q3,
+    Mean='mean',
+    P90=lambda x: x.quantile(0.90),
+    P95=lambda x: x.quantile(0.95),
+    P99=lambda x: x.quantile(0.99),
+    P99_9=p999,
+    Max='max',
+    Std='std',
+    Count='count'
+).round(3)
+
+# Zapis do CSV
+timer_stats_path = os.path.join(RESULTS_DIR, 'timer_statistics.csv')
+timer_stats.to_csv(timer_stats_path)
+print(f"\nStatystyki timera zapisane do: {timer_stats_path}")
+
+# Wydrukowanie statystyk
+print("\n" + "="*80)
+print(timer_stats)
+print("="*80 + "\n")
+
 
 # ==========================================
 # 4. VISUALIZATION (INDIVIDUAL PER OS)
@@ -169,8 +212,7 @@ for os_name in df_final['OS'].unique():
     plt.figure(figsize=(10, 6))
     
     df_plot = df_os.copy()
-    # Log scale fix: replace 0.0 with 0.1 to avoid math domain errors
-    df_plot['Jitter_us'] = df_plot['Jitter_us'].replace(0.0, 0.1)
+    # Log scale fix: wartości zostały już zastąpione wcześniej
     
     # 1. Boxplot - główne "pudełka" pokazujące medianę i rozstęp kwartylowy (IQR)
     # Wyłączamy domyślne rysowanie outlierów (fliersize=0), bo zrobimy to lepiej punktami
@@ -190,12 +232,15 @@ for os_name in df_final['OS'].unique():
     
     # Naprawa legendy (Stripplot domyślnie podwaja pozycje w legendzie)
     handles, labels = ax.get_legend_handles_labels()
-    plt.legend(handles[0:2], labels[0:2], title="Load", bbox_to_anchor=(1.02, 0.5), loc='center left')
+    plt.legend(handles[0:2], labels[0:2], title="Load", loc='upper left', bbox_to_anchor=(0, 1.08), ncol=2, frameon=True)
     
     plt.title(f"Jitter Distribution (Boxplot & Points) - {os_name}", fontsize=14, pad=15)
     
     ax.set_yscale("log")
-    ax.set_ylim(bottom=0.05) # Utrzymuje dolną krawędź na czystym poziomie
+    if Y_MAX is not None:
+        ax.set_ylim(bottom=min_nonzero_value * 0.5, top=Y_MAX)
+    else:
+        ax.set_ylim(bottom=min_nonzero_value * 0.5)
     
     plt.xlabel("Target Timer [us]", fontsize=12)
     plt.ylabel("Jitter [us] (Log Scale)", fontsize=12)

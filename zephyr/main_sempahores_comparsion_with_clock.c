@@ -9,12 +9,12 @@
 #define BASE_TICK_US 50
 
 /* === periods in ticks === */
-#define P50_T (100 / BASE_TICK_US)      // 2
-#define P250_T (200 / BASE_TICK_US)     // 4
-#define P500_T (500 / BASE_TICK_US)     // 10
-#define P1000_T (1000 / BASE_TICK_US)   // 20
-#define P5000_T (5000 / BASE_TICK_US)   // 100
-#define P10000_T (10000 / BASE_TICK_US) // 200
+#define P50_T (100 / BASE_TICK_US)
+#define P250_T (200 / BASE_TICK_US)
+#define P500_T (500 / BASE_TICK_US)
+#define P1000_T (1000 / BASE_TICK_US)
+#define P5000_T (5000 / BASE_TICK_US)
+#define P10000_T (10000 / BASE_TICK_US)
 
 /* === semaphores === */
 K_SEM_DEFINE(sem_50, 0, 1);
@@ -34,7 +34,7 @@ static uint32_t t_10000[SAMPLES];
 
 static int c50, c250, c500, c1000, c5000, c10000;
 
-/* === takers (bez zmian) === */
+/* === takers === */
 #define TAKER(name, sem, buf, cnt)         \
     void name(void *a, void *b, void *c)   \
     {                                      \

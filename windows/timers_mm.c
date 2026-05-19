@@ -44,8 +44,8 @@ int main(void)
     TIMECAPS tc;
     if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) != TIMERR_NOERROR)
     {
+        return 1;
     }
-    // fprintf(f, "1ms;%lld\n", tc.wPeriodMin);
 
     fprintf(f, "=== META ===\n");
     fprintf(f, "QPC_FREQ;%lld\n", qpc_freq.QuadPart);

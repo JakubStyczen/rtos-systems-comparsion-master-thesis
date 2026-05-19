@@ -32,7 +32,6 @@ void thread1_func(void *p1, void *p2, void *p3)
         if (idx < 1000)
         {
             start[idx] = k_cycle_get_32();
-            printk("Wątek 1: mam mutex\n");
         }
         k_sleep(K_USEC(1));
     }
@@ -46,7 +45,6 @@ void thread2_func(void *p1, void *p2, void *p3)
         if (idx < 1000)
         {
             finish[idx] = k_cycle_get_32();
-            printk("Wątek 2: mam mutex\n");
             atomic_inc(&count);
         }
         k_sleep(K_USEC(1));
@@ -55,7 +53,6 @@ void thread2_func(void *p1, void *p2, void *p3)
 
 void main(void)
 {
-    printk("Start programu\n");
 
     k_thread_create(&thread1_data, thread1_stack, STACK_SIZE, thread1_func, NULL, NULL, NULL, PRIORITY,
                     0, K_NO_WAIT);

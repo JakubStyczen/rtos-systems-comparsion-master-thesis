@@ -21,7 +21,6 @@ void cpu_load_fpu(void)
     }
 }
 
-/* === semaphores === */
 HANDLE sem_1, sem_2, sem_5, sem_10, sem_100;
 
 /* === buffers === */
@@ -32,8 +31,6 @@ LARGE_INTEGER t10[SAMPLES];
 LARGE_INTEGER t100[SAMPLES];
 
 volatile LONG c1 = 0, c2 = 0, c5 = 0, c10 = 0, c100 = 0;
-
-/* === timer id === */
 MMRESULT timer_id;
 
 /* === taker macro === */

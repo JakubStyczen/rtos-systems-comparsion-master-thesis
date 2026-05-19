@@ -19,9 +19,8 @@ DWORD WINAPI thread1_func(LPVOID arg)
         if (idx < SAMPLES)
         {
             QueryPerformanceCounter(&start[idx]);
-            printf("Wątek 1: mam mutex %ld\n", idx);
         }
-        Sleep(1); /* odpowiednik k_sleep(K_MSEC(1)) */
+        // Sleep(1);
     }
     return 0;
 }
@@ -34,7 +33,6 @@ DWORD WINAPI thread2_func(LPVOID arg)
         if (idx < SAMPLES)
         {
             QueryPerformanceCounter(&finish[idx]);
-            printf("Wątek 2: mam mutex %ld\n", idx);
             InterlockedIncrement(&count);
         }
         // Sleep(1);
@@ -51,11 +49,6 @@ int main(void)
 
     t1 = CreateThread(NULL, 0, thread1_func, NULL, 0, NULL);
     t2 = CreateThread(NULL, 0, thread2_func, NULL, 0, NULL);
-
-    // SetThreadPriority(t1, THREAD_PRIORITY_HIGHEST);
-    // SetThreadPriority(t2, THREAD_PRIORITY_HIGHEST);
-    // SetThreadAffinityMask(t1, 1);
-    // SetThreadAffinityMask(t2, 1);
 
     WaitForSingleObject(t1, INFINITE);
     WaitForSingleObject(t2, INFINITE);

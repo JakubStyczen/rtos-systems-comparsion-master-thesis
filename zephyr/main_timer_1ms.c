@@ -31,7 +31,7 @@ void fn_clock_1000us(struct k_timer *timer_id)
     if (count_1000 == SAMPLES)
     {
         done_1000 = true;
-        k_timer_stop(timer_id); // zatrzymujemy timer po zebraniu próbek
+        k_timer_stop(timer_id);
     }
 }
 
@@ -54,7 +54,6 @@ void logging_thread(void)
 
             repeat++;
 
-            // reset na kolejną serię
             count_1000 = 0;
             done_1000 = false;
 
@@ -77,8 +76,6 @@ K_THREAD_DEFINE(log_thread, 8192, logging_thread, NULL, NULL, NULL, 7, 0, 0);
 int main(void)
 {
     k_timer_start(&my_timer_1000us, K_USEC(1000), K_USEC(1000));
-
-    printk("1000us timer started\n");
 
     return 0;
 }

@@ -32,7 +32,6 @@ DWORD WINAPI thread1_func(LPVOID arg)
         }
 
         QueryPerformanceCounter(&start[count]);
-        printf("Wątek 1: mam mutex %ld\n", count);
         turn = 2;
 
         WakeConditionVariable(&cv2);
@@ -57,7 +56,6 @@ DWORD WINAPI thread2_func(LPVOID arg)
         }
 
         QueryPerformanceCounter(&finish[count]);
-        printf("Wątek 2: mam mutex %ld\n", count);
         count++;
         turn = 1;
 

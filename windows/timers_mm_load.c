@@ -71,12 +71,10 @@ int main(void)
     TIMECAPS tc;
     if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) != TIMERR_NOERROR)
     {
+        return 1;
     }
-    // fprintf(f, "1ms;%lld\n", tc.wPeriodMin);
 
     fprintf(f, "=== META ===\n");
-    // fprintf(f, "QPC_FREQ;%lld\n", qpc_freq.QuadPart);
-    // fprintf(f, "=== SERIES ===\n");
 
     timeBeginPeriod(1);
     QueryPerformanceFrequency(&qpc_freq);
@@ -95,8 +93,6 @@ int main(void)
     threads[4] = CreateThread(NULL, 0, timer_thread, &t100, 0, NULL);
 
     WaitForMultipleObjects(N_TIMERS, threads, TRUE, INFINITE);
-
-    // fprintf(f, "=== SERIES ===\n");
 
     for (int i = 0; i < SAMPLES; i++)
     {

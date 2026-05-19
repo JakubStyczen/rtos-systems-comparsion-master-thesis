@@ -77,7 +77,6 @@ int main(void)
 
     WaitForSingleObject(doneEvent, INFINITE);
 
-    /* zapis round-robin jak wcześniej */
     for (int i = 0; i < SAMPLES; i++)
     {
         fprintf(f, "1ms;%lld\n", timers[0].ts[i].QuadPart);

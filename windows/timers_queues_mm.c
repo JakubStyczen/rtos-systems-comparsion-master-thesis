@@ -47,21 +47,19 @@ int main(void)
     TIMECAPS tc;
     if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) != TIMERR_NOERROR)
     {
+        return 1;
     }
     fprintf(f, "1ms;%lld\n", tc.wPeriodMin);
-    /* ===== ZMIANA ROZDZIELCZOŚCI ===== */
+    
     timeBeginPeriod(1);
     TIMECAPS tc_2;
     if (timeGetDevCaps(&tc_2, sizeof(TIMECAPS)) != TIMERR_NOERROR)
     {
+        return 1;
     }
     fprintf(f, "1ms;%lld\n", tc_2.wPeriodMin);
     QueryPerformanceFrequency(&qpc_freq);
 
-    if (!f)
-        return 1;
-
-    /* ===== META ===== */
     fprintf(f, "=== META ===\n");
     fprintf(f, "QPC_FREQ;%lld\n", qpc_freq.QuadPart);
     fprintf(f, "TIMER_TYPE;TimerQueue\n");
@@ -95,7 +93,6 @@ int main(void)
 
     WaitForSingleObject(doneEvent, INFINITE);
 
-    /* ===== ZAPIS DANYCH (round-robin) ===== */
     for (int i = 0; i < SAMPLES; i++)
     {
         fprintf(f, "1ms;%lld\n", timers[0].ts[i].QuadPart);

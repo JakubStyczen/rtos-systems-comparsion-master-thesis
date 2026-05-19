@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <stdio.h>
 
 double PCFreq = 0.0;
 __int64 CounterStart = 0;

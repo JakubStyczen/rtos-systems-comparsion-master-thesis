@@ -19,12 +19,8 @@ DWORD WINAPI thread1_func(LPVOID arg)
         DWORD r = WaitForSingleObject(hMutex, 1);
         if (r == WAIT_OBJECT_0)
         {
-
-            {
-                // printf("Wątek 1: mam mutex %ld\n", count);
-                QueryPerformanceCounter(&start[count]);
-                ReleaseMutex(hMutex);
-            }
+            QueryPerformanceCounter(&start[count]);
+            ReleaseMutex(hMutex);
         }
     }
     return 0;
@@ -37,7 +33,6 @@ DWORD WINAPI thread2_func(LPVOID arg)
         DWORD r = WaitForSingleObject(hMutex, 1);
         if (r == WAIT_OBJECT_0)
         {
-            // printf("Wątek 2: mam mutex %ld\n", count);
             QueryPerformanceCounter(&finish[count]);
             count++;
             ReleaseMutex(hMutex);
@@ -52,8 +47,6 @@ int main(void)
 
     QueryPerformanceFrequency(&freq);
     hMutex = CreateMutex(NULL, FALSE, NULL);
-
-    printf("Start programu\n");
 
     t1 = CreateThread(NULL, 0, thread1_func, NULL, 0, NULL);
     t2 = CreateThread(NULL, 0, thread2_func, NULL, 0, NULL);

@@ -93,8 +93,6 @@ void StartTimerTest(void const *argument);
 /* USER CODE BEGIN 0 */
 int _write(int file, char *ptr, int len)
 {
-    // Wysyłamy surowe dane przez UART w trybie blokującym (polling)
-    // Timeout 10ms wystarczy na małe paczki tekstu
     HAL_UART_Transmit(&huart3, (uint8_t *)ptr, len, 10);
     return len;
 }
@@ -111,34 +109,14 @@ void dwt_init(void)
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 }
 TimerHandle_t master_timer;
-SemaphoreHandle_t sem_100;
-SemaphoreHandle_t sem_200;
-SemaphoreHandle_t sem_500;
 SemaphoreHandle_t sem_1000;
-SemaphoreHandle_t sem_5000;
-SemaphoreHandle_t sem_10000;
 static uint32_t tick = 0;
 void master_timer_callback(TimerHandle_t xTimer)
 {
     tick++;
 
-    if (tick % P100_T == 0)
-        xSemaphoreGive(sem_100);
-
-    if (tick % P200_T == 0)
-        xSemaphoreGive(sem_200);
-
-    if (tick % P500_T == 0)
-        xSemaphoreGive(sem_500);
-
     if (tick % P1000_T == 0)
         xSemaphoreGive(sem_1000);
-
-    if (tick % P5000_T == 0)
-        xSemaphoreGive(sem_5000);
-
-    if (tick % P10000_T == 0)
-        xSemaphoreGive(sem_10000);
 }
 
 /* ================= 100 us ================= */

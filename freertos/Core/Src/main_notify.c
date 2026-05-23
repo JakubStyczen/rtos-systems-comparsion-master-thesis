@@ -83,8 +83,6 @@ void StartTimerTest(void const *argument);
 /* USER CODE BEGIN 0 */
 int _write(int file, char *ptr, int len)
 {
-    // Wysyłamy surowe dane przez UART w trybie blokującym (polling)
-    // Timeout 10ms wystarczy na małe paczki tekstu
     HAL_UART_Transmit(&huart3, (uint8_t *)ptr, len, 10);
     return len;
 }
@@ -103,19 +101,11 @@ void dwt_init(void)
 
 void delay_us(uint32_t us)
 {
-    // 1. Pobierz aktualną liczbę cykli jako punkt startowy
     uint32_t start_tick = DWT->CYCCNT;
-
-    // 2. Oblicz ile cykli musi upłynąć (SystemCoreClock to Hz, czyli cykle/sekundę)
-    // Dzielimy przez 1 000 000, aby uzyskać liczbę cykli na mikrosekundę
     uint32_t ticks_to_wait = us * (168000000 / 1000000);
 
-    // 3. Czekaj w pętli, aż upłynie wymagana liczba cykli
     while ((DWT->CYCCNT - start_tick) < ticks_to_wait)
     {
-        // Pusta pętla - procesor wykonuje tylko sprawdzenie warunku
-        // Dzięki matematyce na liczbach uint32_t (modulo 2^32),
-        // odejmowanie zadziała poprawnie nawet jeśli licznik się przekręci (overflow).
     }
 }
 
@@ -126,26 +116,15 @@ TaskHandle_t xTask2Handle = NULL;
 static uint32_t start[SAMPLES];
 static uint32_t finish[SAMPLES];
 static volatile int count = 0;
-static int turn = 1;
-
-// TickType_t lastWake1 = xTaskGetTickCount();
-// TickType_t lastWake2 = xTaskGetTickCount();
 
 /* ===== TASK 1 ===== */
 void task1(void *arg)
 {
-    // Opcjonalnie: czekamy chwilę, aż Task 2 na pewno się uruchomi
-    //    vTaskDelay(pdMS_TO_TICKS(10));
-
     while (count < SAMPLES)
     {
-        // Wykonaj pracę (np. zapisz start)
         start[count] = get_cycles();
         printf("Task1");
-        // Powiadom Task 2, że może działać
         xTaskNotifyGive(xTask2Handle);
-
-        // Czekaj na powiadomienie zwrotne od Task 2
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
     }
     vTaskDelete(NULL);
@@ -156,15 +135,10 @@ void task2(void *arg)
 {
     while (count < SAMPLES)
     {
-        // Czekaj na sygnał od Task 1
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-
-        // Wykonaj pracę (np. zapisz koniec)
         finish[count] = get_cycles();
         count++;
         printf("Task2");
-
-        // Powiadom Task 1, że może zacząć kolejną iterację
         xTaskNotifyGive(xTask1Handle);
     }
 
@@ -182,16 +156,13 @@ void print_all_data(void)
 
 void taskPrint(void *arg)
 {
-    /* Czekaj aż ktoś Cię obudzi */
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-    /* Po zakończeniu pomiarów */
     for (int i = 0; i < SAMPLES; i++)
     {
         printf("%lu;%lu\r\n", start[i], finish[i]);
     }
 
-    /* Task już niepotrzebny */
     vTaskDelete(NULL);
 }
 

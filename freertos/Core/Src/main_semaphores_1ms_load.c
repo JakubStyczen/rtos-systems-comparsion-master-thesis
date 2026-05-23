@@ -99,8 +99,6 @@ void cpu_load_fpu(void)
 
 int _write(int file, char *ptr, int len)
 {
-    // Wysyłamy surowe dane przez UART w trybie blokującym (polling)
-    // Timeout 10ms wystarczy na małe paczki tekstu
     HAL_UART_Transmit(&huart3, (uint8_t *)ptr, len, 10);
     return len;
 }

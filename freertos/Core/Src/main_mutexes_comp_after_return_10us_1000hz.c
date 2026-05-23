@@ -83,8 +83,6 @@ void StartTimerTest(void const *argument);
 /* USER CODE BEGIN 0 */
 int _write(int file, char *ptr, int len)
 {
-    // Wysyłamy surowe dane przez UART w trybie blokującym (polling)
-    // Timeout 10ms wystarczy na małe paczki tekstu
     HAL_UART_Transmit(&huart3, (uint8_t *)ptr, len, 10);
     return len;
 }
@@ -103,19 +101,11 @@ void dwt_init(void)
 
 void delay_us(uint32_t us)
 {
-    // 1. Pobierz aktualną liczbę cykli jako punkt startowy
     uint32_t start_tick = DWT->CYCCNT;
-
-    // 2. Oblicz ile cykli musi upłynąć (SystemCoreClock to Hz, czyli cykle/sekundę)
-    // Dzielimy przez 1 000 000, aby uzyskać liczbę cykli na mikrosekundę
     uint32_t ticks_to_wait = us * (168000000 / 1000000);
 
-    // 3. Czekaj w pętli, aż upłynie wymagana liczba cykli
     while ((DWT->CYCCNT - start_tick) < ticks_to_wait)
     {
-        // Pusta pętla - procesor wykonuje tylko sprawdzenie warunku
-        // Dzięki matematyce na liczbach uint32_t (modulo 2^32),
-        // odejmowanie zadziała poprawnie nawet jeśli licznik się przekręci (overflow).
     }
 }
 
@@ -125,9 +115,6 @@ static uint32_t start[SAMPLES];
 static uint32_t finish[SAMPLES];
 static volatile int count = 0;
 
-// TickType_t lastWake1 = xTaskGetTickCount();
-// TickType_t lastWake2 = xTaskGetTickCount();
-
 /* ===== TASK 1 ===== */
 void task1(void *arg)
 {
@@ -135,12 +122,9 @@ void task1(void *arg)
     {
         if (xSemaphoreTake(myMutex, portMAX_DELAY) == pdTRUE)
         {
-            start[count] = get_cycles(); //            if (count % 1 == 0){
-                                         //            printf("%d T1\r\n", count);
-                                         //            }
+            start[count] = get_cycles();
             xSemaphoreGive(myMutex);
             vTaskDelay(pdMS_TO_TICKS(1));
-            //            vTaskDelayUntil(&lastWake1, pdMS_TO_TICKS(1));
         }
     }
     vTaskDelete(NULL);
@@ -155,17 +139,12 @@ void task2(void *arg)
         {
             finish[count] = get_cycles();
             count++;
-            //            if (count % 1 == 0){
-            //            printf("%d T2\r\n", count);
-            //            }
             xSemaphoreGive(myMutex);
-            //            vTaskDelayUntil(&lastWake2, pdMS_TO_TICKS(1));
             vTaskDelay(pdMS_TO_TICKS(1));
         }
     }
-    /* Obudź task drukujący */
-    xTaskNotifyGive(printTaskHandle);
 
+    xTaskNotifyGive(printTaskHandle);
     vTaskDelete(NULL);
 }
 

@@ -88,8 +88,6 @@ void StartTimerTest(void const *argument);
 /* USER CODE BEGIN 0 */
 int _write(int file, char *ptr, int len)
 {
-    // Wysyłamy surowe dane przez UART w trybie blokującym (polling)
-    // Timeout 10ms wystarczy na małe paczki tekstu
     HAL_UART_Transmit(&huart3, (uint8_t *)ptr, len, 10);
     return len;
 }
@@ -117,23 +115,14 @@ void master_timer_callback(TimerHandle_t xTimer)
 }
 
 /* ================= 100 us ================= */
-uint32_t t100[SAMPLES];
+uint32_t t1000[SAMPLES];
 
 volatile int c1000 = 0;
 
 static void reset_counters(void)
 {
     c1000 = 0;
-    //    tick = 0;
 }
-
-// Blokujące
-
-///* ================= 1000 us ================= */
-uint32_t t1000[SAMPLES];
-
-////
-////
 void task1000(void *arg)
 {
     while (1)
@@ -142,71 +131,13 @@ void task1000(void *arg)
 
         if (c1000 < SAMPLES)
         {
-            //            printf("c1000 %d\n", c1000);
             t1000[c1000++] = get_cycles();
         }
         else if (c1000 == SAMPLES)
             vTaskDelete(NULL);
         break;
     }
-    //    printf("c1000 deleted");
 }
-
-// void task100(void *arg)
-//{
-//     while (c100 < SAMPLES)
-//     {
-//         xSemaphoreTake(sem_100, portMAX_DELAY);
-//         t100[c100++] = get_cycles();
-//     }
-//     vTaskDelete(NULL);
-// }
-// void task200(void *arg)
-//{
-//     while (c200 < SAMPLES)
-//     {
-//         xSemaphoreTake(sem_200, portMAX_DELAY);
-//         t200[c200++] = get_cycles();
-//     }
-//     vTaskDelete(NULL);
-// }
-// void task500(void *arg)
-//{
-//     while (c500 < SAMPLES)
-//     {
-//         xSemaphoreTake(sem_500, portMAX_DELAY);
-//         t500[c500++] = get_cycles();
-//     }
-//     vTaskDelete(NULL);
-// }
-// void task1000(void *arg)
-//{
-//     while (c1000 < SAMPLES)
-//     {
-//         xSemaphoreTake(sem_1000, portMAX_DELAY);
-//         t1000[c1000++] = get_cycles();
-//     }
-//     vTaskDelete(NULL);
-// }
-// void task5000(void *arg)
-//{
-//     while (c5000 < SAMPLES)
-//     {
-//         xSemaphoreTake(sem_5000, portMAX_DELAY);
-//         t5000[c5000++] = get_cycles();
-//     }
-//     vTaskDelete(NULL);
-// }
-//
-// void task10000(void *arg)
-//{
-//     while (c10000 < SAMPLES)
-//     {
-//         xSemaphoreTake(sem_10000, portMAX_DELAY);
-//         t10000[c10000++] = get_cycles();
-//     }
-//     vTaskDelete(NULL);
-// }
 
 void task_print(void *arg)
 {
@@ -244,7 +175,7 @@ void create_semaphores()
     status = xTaskCreate(task1000, "t1000", 128, NULL, 3, NULL);
     if (status != pdPASS)
     {
-        printf("BŁĄD: Nie udalo sie utworzyc task1000\r\n");
+        printf("ERROR: Failed to create task1000\r\n");
     }
 }
 

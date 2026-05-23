@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2025 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 #include <stdio.h>
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
@@ -65,8 +65,8 @@ static void MX_USART2_UART_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
-void StartDefaultTask(void const * argument);
-void StartTimerTest(void const * argument);
+void StartDefaultTask(void const *argument);
+void StartTimerTest(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -74,115 +74,59 @@ void StartTimerTest(void const * argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int _write(int file, char *ptr, int len) {
-    // Wysyłamy surowe dane przez UART w trybie blokującym (polling)
-    // Timeout 10ms wystarczy na małe paczki tekstu
-    HAL_UART_Transmit(&huart3, (uint8_t*)ptr, len, 10);
-    return len;
+int _write(int file, char *ptr, int len)
+{
+  HAL_UART_Transmit(&huart3, (uint8_t *)ptr, len, 10);
+  return len;
 }
 
 static inline uint64_t get_cycles(void)
 {
-    return DWT->CYCCNT;
+  return DWT->CYCCNT;
 }
 
 void dwt_init(void)
 {
-    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-    DWT->CYCCNT = 0;
-    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+  CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+  DWT->CYCCNT = 0;
+  DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 }
 
 #define SAMPLES 1000
 #define REPEATS 5
 
-static uint64_t time_100[SAMPLES], time_200[SAMPLES], time_500[SAMPLES];
-static uint64_t time_1000[SAMPLES], time_5000[SAMPLES], time_10000[SAMPLES];
+static uint64_t time_100[SAMPLES];
 
-static int count_100 = 0, count_200 = 0, count_500 = 0;
-static int count_1000 = 0, count_5000 = 0, count_10000 = 0;
-
-static bool done_100 = false, done_200 = false, done_500 = false;
-static bool done_1000 = false, done_5000 = false, done_10000 = false;
-
-static int repeat = 0;
+static int count_100 = 0;
+static bool done_100 = false;
 
 void cb_100(TimerHandle_t xTimer)
 {
-    if (count_100 < SAMPLES) {
-        time_100[count_100++] = get_cycles();
-    }
-    if (count_100 == SAMPLES) done_100 = true;
+  if (count_100 < SAMPLES)
+  {
+    time_100[count_100++] = get_cycles();
+  }
+  if (count_100 == SAMPLES)
+    done_100 = true;
 }
 
-void cb_200(TimerHandle_t xTimer)
-{
-    if (count_200 < SAMPLES) {
-        time_200[count_200++] = get_cycles();
-    }
-    if (count_200 == SAMPLES) done_200 = true;
-}
-
-void cb_500(TimerHandle_t xTimer)
-{
-    if (count_500 < SAMPLES) {
-        time_500[count_500++] = get_cycles();
-    }
-    if (count_500 == SAMPLES) done_500 = true;
-}
-
-void cb_1000(TimerHandle_t xTimer)
-{
-    if (count_1000 < SAMPLES) {
-        time_1000[count_1000++] = get_cycles();
-    }
-    if (count_1000 == SAMPLES) done_1000 = true;
-}
-
-void cb_5000(TimerHandle_t xTimer)
-{
-    if (count_5000 < SAMPLES) {
-        time_5000[count_5000++] = get_cycles();
-    }
-    if (count_5000 == SAMPLES) done_5000 = true;
-}
-
-void cb_10000(TimerHandle_t xTimer)
-{
-    if (count_10000 < SAMPLES) {
-        time_10000[count_10000++] = get_cycles();
-    }
-    if (count_10000 == SAMPLES) done_10000 = true;
-}
-
-TimerHandle_t t100, t200, t500, t1000, t5000, t10000;
-
+TimerHandle_t t100;
 
 void timers_init(void)
 {
-    t100    = xTimerCreate("t100",    10,      pdTRUE, NULL, cb_100);
-//    t200    = xTimerCreate("t200",    2,      pdTRUE, NULL, cb_200);
-//    t500    = xTimerCreate("t500",    5,      pdTRUE, NULL, cb_500);
-//    t1000   = xTimerCreate("t1000",   pdMS_TO_TICKS(1),      pdTRUE, NULL, cb_1000);
-//    t5000   = xTimerCreate("t5000",   pdMS_TO_TICKS(5),      pdTRUE, NULL, cb_5000);
-//    t10000  = xTimerCreate("t10000",  pdMS_TO_TICKS(10),     pdTRUE, NULL, cb_10000);
+  t100 = xTimerCreate("t100", 10, pdTRUE, NULL, cb_100);
 }
 
 void timers_start(void)
 {
-    xTimerStart(t100, 0);
-//    xTimerStart(t200, 0);
-//    xTimerStart(t500, 0);
-//    xTimerStart(t1000, 0);
-//    xTimerStart(t5000, 0);
-//    xTimerStart(t10000, 0);
+  xTimerStart(t100, 0);
 }
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
 
@@ -196,9 +140,6 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-//  HAL_TIM_Base_Start_IT(&htim2);
-//  HAL_TIM_Base_Start_IT(&htim3);
-//  HAL_TIM_Base_Start_IT(&htim4);
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -217,9 +158,6 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-//  HAL_TIM_Base_Start_IT(&htim2);
-//  HAL_TIM_Base_Start_IT(&htim3);
-//  HAL_TIM_Base_Start_IT(&htim4);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -267,27 +205,26 @@ int main(void)
     /* USER CODE BEGIN 3 */
   }
 
-
   /* USER CODE END 3 */
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-  */
+   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -302,9 +239,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
@@ -317,10 +253,10 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief TIM2 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief TIM2 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_TIM2_Init(void)
 {
 
@@ -358,14 +294,13 @@ static void MX_TIM2_Init(void)
   /* USER CODE BEGIN TIM2_Init 2 */
 
   /* USER CODE END TIM2_Init 2 */
-
 }
 
 /**
-  * @brief TIM3 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief TIM3 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_TIM3_Init(void)
 {
 
@@ -403,14 +338,13 @@ static void MX_TIM3_Init(void)
   /* USER CODE BEGIN TIM3_Init 2 */
 
   /* USER CODE END TIM3_Init 2 */
-
 }
 
 /**
-  * @brief TIM4 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief TIM4 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_TIM4_Init(void)
 {
 
@@ -448,14 +382,13 @@ static void MX_TIM4_Init(void)
   /* USER CODE BEGIN TIM4_Init 2 */
 
   /* USER CODE END TIM4_Init 2 */
-
 }
 
 /**
-  * @brief USART2 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief USART2 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_USART2_UART_Init(void)
 {
 
@@ -481,14 +414,13 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
-
 }
 
 /**
-  * @brief USART3 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief USART3 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_USART3_UART_Init(void)
 {
 
@@ -514,14 +446,13 @@ static void MX_USART3_UART_Init(void)
   /* USER CODE BEGIN USART3_Init 2 */
 
   /* USER CODE END USART3_Init 2 */
-
 }
 
 /**
-  * @brief USB_OTG_FS Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief USB_OTG_FS Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_USB_OTG_FS_PCD_Init(void)
 {
 
@@ -549,14 +480,13 @@ static void MX_USB_OTG_FS_PCD_Init(void)
   /* USER CODE BEGIN USB_OTG_FS_Init 2 */
 
   /* USER CODE END USB_OTG_FS_Init 2 */
-
 }
 
 /**
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief GPIO Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -573,7 +503,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOG_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LD1_Pin|LD3_Pin|LD2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, LD1_Pin | LD3_Pin | LD2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
@@ -585,7 +515,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(USER_Btn_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : RMII_MDC_Pin RMII_RXD0_Pin RMII_RXD1_Pin */
-  GPIO_InitStruct.Pin = RMII_MDC_Pin|RMII_RXD0_Pin|RMII_RXD1_Pin;
+  GPIO_InitStruct.Pin = RMII_MDC_Pin | RMII_RXD0_Pin | RMII_RXD1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -601,7 +531,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(RMII_CRS_DV_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LD1_Pin LD3_Pin LD2_Pin */
-  GPIO_InitStruct.Pin = LD1_Pin|LD3_Pin|LD2_Pin;
+  GPIO_InitStruct.Pin = LD1_Pin | LD3_Pin | LD2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -629,7 +559,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(USB_OverCurrent_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : RMII_TX_EN_Pin RMII_TXD0_Pin */
-  GPIO_InitStruct.Pin = RMII_TX_EN_Pin|RMII_TXD0_Pin;
+  GPIO_InitStruct.Pin = RMII_TX_EN_Pin | RMII_TXD0_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -647,18 +577,18 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN Header_StartDefaultTask */
 /**
-  * @brief  Function implementing the defaultTask thread.
-  * @param  argument: Not used
-  * @retval None
-  */
+ * @brief  Function implementing the defaultTask thread.
+ * @param  argument: Not used
+ * @retval None
+ */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const * argument)
+void StartDefaultTask(void const *argument)
 {
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
-  for(;;)
+  for (;;)
   {
-  HAL_UART_Transmit(&huart2, (uint8_t*)"Tick\r\n", 6, 100);
+    HAL_UART_Transmit(&huart2, (uint8_t *)"Tick\r\n", 6, 100);
     osDelay(1);
   }
   /* USER CODE END 5 */
@@ -666,60 +596,63 @@ void StartDefaultTask(void const * argument)
 
 /* USER CODE BEGIN Header_StartTimerTest */
 /**
-* @brief Function implementing the timerTest thread.
-* @param argument: Not used
-* @retval None
-*/
+ * @brief Function implementing the timerTest thread.
+ * @param argument: Not used
+ * @retval None
+ */
 /* USER CODE END Header_StartTimerTest */
-void StartTimerTest(void const * argument)
+void StartTimerTest(void const *argument)
 {
   /* USER CODE BEGIN StartTimerTest */
   /* Infinite loop */
-	 printf("=== SERIES %d ===\n", repeat + 1);
-	 while (repeat < REPEATS) {
+  printf("=== SERIES %d ===\n", repeat + 1);
+  while (repeat < REPEATS)
+  {
 
-//        if (done_100 && done_200 && done_500 &&
-//            done_1000 && done_5000 && done_10000) {
-//	        if (done_1000 && done_5000 && done_10000) {
-		 	        if (done_100) {
-            printf("=== SERIES %d ===\n", repeat + 1);
+    //        if (done_100 && done_200 && done_500 &&
+    //            done_1000 && done_5000 && done_10000) {
+    //	        if (done_1000 && done_5000 && done_10000) {
+    if (done_100)
+    {
+      printf("=== SERIES %d ===\n", repeat + 1);
 
-            for (int i = 0; i < SAMPLES; i++) {
-                printf("100us;%llu\n", time_100[i]);
-//                printf("200us;%llu\n", time_200[i]);
-//                printf("500us;%llu\n", time_500[i]);
-//                printf("1000us;%llu\n", time_1000[i]);
-//                printf("5000us;%llu\n", time_5000[i]);
-//                printf("10000us;%llu\n", time_10000[i]);
-            }
+      for (int i = 0; i < SAMPLES; i++)
+      {
+        printf("100us;%llu\n", time_100[i]);
+        //                printf("200us;%llu\n", time_200[i]);
+        //                printf("500us;%llu\n", time_500[i]);
+        //                printf("1000us;%llu\n", time_1000[i]);
+        //                printf("5000us;%llu\n", time_5000[i]);
+        //                printf("10000us;%llu\n", time_10000[i]);
+      }
 
-            repeat++;
+      repeat++;
 
-            // Reset jak w Zephyrze
-            count_100 = count_200 = count_500 = 0;
-            count_1000 = count_5000 = count_10000 = 0;
-            done_100 = done_200 = done_500 = false;
-            done_1000 = done_5000 = done_10000 = false;
+      // Reset jak w Zephyrze
+      count_100 = count_200 = count_500 = 0;
+      count_1000 = count_5000 = count_10000 = 0;
+      done_100 = done_200 = done_500 = false;
+      done_1000 = done_5000 = done_10000 = false;
 
-            timers_start();
-        }
-
-        vTaskDelay(pdMS_TO_TICKS(10));
+      timers_start();
     }
 
-    printf("All series completed.\n");
-    vTaskSuspend(NULL);
+    vTaskDelay(pdMS_TO_TICKS(10));
+  }
+
+  printf("All series completed.\n");
+  vTaskSuspend(NULL);
   /* USER CODE END StartTimerTest */
 }
 
 /**
-  * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM6 interrupt took place, inside
-  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
-  * a global variable "uwTick" used as application time base.
-  * @param  htim : TIM handle
-  * @retval None
-  */
+ * @brief  Period elapsed callback in non blocking mode
+ * @note   This function is called  when TIM6 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ * @param  htim : TIM handle
+ * @retval None
+ */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
@@ -730,34 +663,34 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-//  if (htim->Instance == TIM2)      // 100 us
-//  {
-//      if (count_100 < SAMPLES)
-//          time_100[count_100++] = get_cycles();
-//      else
-//          done_100 = true;
-//  }
-//  else if (htim->Instance == TIM3) // 200 us
-//  {
-//      if (count_200 < SAMPLES)
-//          time_200[count_200++] = get_cycles();
-//      else
-//          done_200 = true;
-//  }
-//  else if (htim->Instance == TIM4) // 500 us
-//  {
-//      if (count_500 < SAMPLES)
-//          time_500[count_500++] = get_cycles();
-//      else
-//          done_500 = true;
-//  }
+  //  if (htim->Instance == TIM2)      // 100 us
+  //  {
+  //      if (count_100 < SAMPLES)
+  //          time_100[count_100++] = get_cycles();
+  //      else
+  //          done_100 = true;
+  //  }
+  //  else if (htim->Instance == TIM3) // 200 us
+  //  {
+  //      if (count_200 < SAMPLES)
+  //          time_200[count_200++] = get_cycles();
+  //      else
+  //          done_200 = true;
+  //  }
+  //  else if (htim->Instance == TIM4) // 500 us
+  //  {
+  //      if (count_500 < SAMPLES)
+  //          time_500[count_500++] = get_cycles();
+  //      else
+  //          done_500 = true;
+  //  }
   /* USER CODE END Callback 1 */
 }
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -770,12 +703,12 @@ void Error_Handler(void)
 }
 #ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

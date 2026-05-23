@@ -9,13 +9,12 @@
 #define ITER 100000
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t  cond  = PTHREAD_COND_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 uint64_t start[ITER];
 uint64_t finish[ITER];
 
 volatile int count = 0;
-volatile int ready = 0;
 
 static inline uint64_t now_ns(void)
 {
@@ -24,45 +23,26 @@ static inline uint64_t now_ns(void)
     return (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
 }
 
-/* Wątek A – sygnalizujący */
 void *thread_signal(void *arg)
 {
     while (count < ITER)
     {
         pthread_mutex_lock(&mutex);
-
-        // while (ready)
-        // pthread_cond_wait(&cond, &mutex);
-
         start[count] = now_ns();
-
-        // usleep(1);
-        // ready = 1;
-        printf("aaaaaaaaaaaaaaaaaa");
         pthread_cond_signal(&cond);
-
         pthread_mutex_unlock(&mutex);
     }
     return NULL;
 }
 
-
-/* Wątek B – czekający */
 void *thread_wait(void *arg)
 {
     while (count < ITER)
     {
         pthread_mutex_lock(&mutex);
-
-        // while (!ready)
         pthread_cond_wait(&cond, &mutex);
-
         finish[count] = now_ns();
         count++;
-        // ready = 0;
-        // usleep(1);
-        // pthread_cond_signal(&cond);
-        printf("Bbbbbbbbbbbbbbbbb");
         pthread_mutex_unlock(&mutex);
     }
     return NULL;
@@ -70,8 +50,6 @@ void *thread_wait(void *arg)
 int main(void)
 {
     pthread_t t1, t2;
-
-    // pin_to_cpu(0);
 
     pthread_create(&t1, NULL, thread_signal, NULL);
     pthread_create(&t2, NULL, thread_wait, NULL);

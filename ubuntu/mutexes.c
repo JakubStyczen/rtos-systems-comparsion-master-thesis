@@ -27,9 +27,7 @@ void *thread1_func(void *arg)
     {
         pthread_mutex_lock(&mutex);
         start[count] = now_ns();
-        // printf("First");
         pthread_mutex_unlock(&mutex);
-        // usleep(2);
     }
     return NULL;
 }
@@ -41,29 +39,14 @@ void *thread2_func(void *arg)
         pthread_mutex_lock(&mutex);
         finish[count] = now_ns();
         count++;
-        // printf("Second");
         pthread_mutex_unlock(&mutex);
-        // usleep(2);
     }
     return NULL;
 }
 
-static void pin_to_cpu(int cpu)
-{
-    cpu_set_t cpuset;
-    CPU_ZERO(&cpuset);
-    CPU_SET(cpu, &cpuset);
-    pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
-}
-
-
-
 int main(void)
 {
     pthread_t t1, t2;
-
-    /* przypnij proces do jednego rdzenia */
-    // pin_to_cpu(0);
 
     pthread_create(&t1, NULL, thread1_func, NULL);
     pthread_create(&t2, NULL, thread2_func, NULL);
@@ -84,7 +67,5 @@ int main(void)
     }
 
     fclose(f);
-    
-
     return 0;
 }

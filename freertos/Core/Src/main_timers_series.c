@@ -76,8 +76,6 @@ void StartTimerTest(void const *argument);
 /* USER CODE BEGIN 0 */
 int _write(int file, char *ptr, int len)
 {
-    // Wysyłamy surowe dane przez UART w trybie blokującym (polling)
-    // Timeout 10ms wystarczy na małe paczki tekstu
     HAL_UART_Transmit(&huart3, (uint8_t *)ptr, len, 10);
     return len;
 }
@@ -97,16 +95,11 @@ void dwt_init(void)
 #define SAMPLES 2500
 #define REPEATS 40
 
-static uint64_t time_100[SAMPLES], time_200[SAMPLES], time_500[SAMPLES];
-static uint64_t time_1000[SAMPLES], time_5000[SAMPLES], time_10000[SAMPLES];
+static uint64_t time_100[SAMPLES];
 
-static int count_100 = 0, count_200 = 0, count_500 = 0;
-static int count_1000 = 0, count_5000 = 0, count_10000 = 0;
+static int count_100 = 0;
 
-static bool done_100 = false, done_200 = false, done_500 = false;
-static bool done_1000 = false, done_5000 = false, done_10000 = false;
-
-static int repeat = 0;
+static bool done_100 = false;
 
 void cb_100(TimerHandle_t xTimer)
 {
@@ -118,57 +111,7 @@ void cb_100(TimerHandle_t xTimer)
         done_100 = true;
 }
 
-void cb_200(TimerHandle_t xTimer)
-{
-    if (count_200 < SAMPLES)
-    {
-        time_200[count_200++] = get_cycles();
-    }
-    if (count_200 == SAMPLES)
-        done_200 = true;
-}
-
-void cb_500(TimerHandle_t xTimer)
-{
-    if (count_500 < SAMPLES)
-    {
-        time_500[count_500++] = get_cycles();
-    }
-    if (count_500 == SAMPLES)
-        done_500 = true;
-}
-
-void cb_1000(TimerHandle_t xTimer)
-{
-    if (count_1000 < SAMPLES)
-    {
-        time_1000[count_1000++] = get_cycles();
-    }
-    if (count_1000 == SAMPLES)
-        done_1000 = true;
-}
-
-void cb_5000(TimerHandle_t xTimer)
-{
-    if (count_5000 < SAMPLES)
-    {
-        time_5000[count_5000++] = get_cycles();
-    }
-    if (count_5000 == SAMPLES)
-        done_5000 = true;
-}
-
-void cb_10000(TimerHandle_t xTimer)
-{
-    if (count_10000 < SAMPLES)
-    {
-        time_10000[count_10000++] = get_cycles();
-    }
-    if (count_10000 == SAMPLES)
-        done_10000 = true;
-}
-
-TimerHandle_t t100, t200, t500, t1000, t5000, t10000;
+TimerHandle_t t100;
 
 void timers_init(void)
 {

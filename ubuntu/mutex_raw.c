@@ -32,27 +32,14 @@ void pin_to_cpu(int cpu)
     pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
 }
 
-void set_fifo()
-{
-    struct sched_param param;
-    param.sched_priority = 80;
-    if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &param) != 0)
-    {
-        perror("sched");
-        exit(1);
-    }
-}
-
 void *thread1_func(void *arg)
 {
-    // pin_to_cpu(0);
-    // set_fifo();
-
     while (1)
     {
         pthread_mutex_lock(&mutex);
 
-        if (count >= ITER) {
+        if (count >= ITER)
+        {
             pthread_mutex_unlock(&mutex);
             break;
         }
@@ -60,7 +47,6 @@ void *thread1_func(void *arg)
         if (turn == 1)
         {
             start[count] = now_ns();
-            printf("Wątek 1");
             turn = 2;
         }
 
@@ -72,14 +58,12 @@ void *thread1_func(void *arg)
 
 void *thread2_func(void *arg)
 {
-    // pin_to_cpu(0);
-    // set_fifo();
-
     while (1)
     {
         pthread_mutex_lock(&mutex);
 
-        if (count >= ITER) {
+        if (count >= ITER)
+        {
             pthread_mutex_unlock(&mutex);
             break;
         }
@@ -87,7 +71,6 @@ void *thread2_func(void *arg)
         if (turn == 2)
         {
             finish[count] = now_ns();
-            printf("Wątek 2");
             count++;
             turn = 1;
         }

@@ -76,8 +76,6 @@ void StartTimerTest(void const *argument);
 /* USER CODE BEGIN 0 */
 int _write(int file, char *ptr, int len)
 {
-    // Wysyłamy surowe dane przez UART w trybie blokującym (polling)
-    // Timeout 10ms wystarczy na małe paczki tekstu
     HAL_UART_Transmit(&huart3, (uint8_t *)ptr, len, 10);
     return len;
 }
@@ -99,13 +97,9 @@ void dwt_init(void)
 
 static uint64_t time_1000[SAMPLES];
 
-static int count_100 = 0, count_200 = 0, count_500 = 0;
-static int count_1000 = 0, count_5000 = 0, count_10000 = 0;
+static int count_1000 = 0;
 
-static bool done_100 = false, done_200 = false, done_500 = false;
-static bool done_1000 = false, done_5000 = false, done_10000 = false;
-
-static int repeat = 0;
+static bool done_1000 = false;
 
 void cb_1000(TimerHandle_t xTimer)
 {
@@ -121,22 +115,12 @@ TimerHandle_t t100, t200, t500, t1000, t5000, t10000;
 
 void timers_init(void)
 {
-    // t100 = xTimerCreate("t100", 2, pdTRUE, NULL, cb_100);
-    // t200 = xTimerCreate("t200", 4, pdTRUE, NULL, cb_200);
-    // t500 = xTimerCreate("t500", 10, pdTRUE, NULL, cb_500);
     t1000 = xTimerCreate("t1000", pdMS_TO_TICKS(1), pdTRUE, NULL, cb_1000);
-    // t5000 = xTimerCreate("t5000", pdMS_TO_TICKS(5), pdTRUE, NULL, cb_5000);
-    // t10000 = xTimerCreate("t10000", pdMS_TO_TICKS(10), pdTRUE, NULL, cb_10000);
 }
 
 void timers_start(void)
 {
-    // xTimerStart(t100, 0);
-    // xTimerStart(t200, 0);
-    // xTimerStart(t500, 0);
     xTimerStart(t1000, 0);
-    // xTimerStart(t5000, 0);
-    // xTimerStart(t10000, 0);
 }
 /* USER CODE END 0 */
 

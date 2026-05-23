@@ -90,8 +90,6 @@ void StartTimerTest(void const *argument);
 /* USER CODE BEGIN 0 */
 int _write(int file, char *ptr, int len)
 {
-    // Wysyłamy surowe dane przez UART w trybie blokującym (polling)
-    // Timeout 10ms wystarczy na małe paczki tekstu
     HAL_UART_Transmit(&huart3, (uint8_t *)ptr, len, 10);
     return len;
 }
@@ -125,13 +123,9 @@ void Task_A(void *argument)
         {
             if (xSemaphoreTake(xMutex, portMAX_DELAY) == pdPASS)
             {
-                // Notujemy czas zajęcia przez Task A
                 start[measurement_idx] = get_cycles();
-                //                printf("A%d\n", measurement_idx);
                 xSemaphoreGive(xMutex);
-
-                //                // Tutaj Task_B powinien przejąć Mutex (jeśli ma odpowiedni priorytet)
-                osDelay(1); // Pozwalamy schedulerowi zadziałać
+                osDelay(1);
             }
         }
         else
@@ -147,12 +141,10 @@ void Task_B(void *argument)
     {
         if (xSemaphoreTake(xMutex, portMAX_DELAY) == pdPASS)
         {
-
             finish[measurement_idx] = get_cycles();
             measurement_idx++;
-            //            printf("B%d\n", measurement_idx);
             xSemaphoreGive(xMutex);
-            osDelay(1); // Pozwalamy schedulerowi zadziałać
+            osDelay(1);
             if (measurement_idx >= SAMPLES)
             {
                 vTaskSuspend(NULL);

@@ -90,8 +90,6 @@ void StartTimerTest(void const *argument);
 /* USER CODE BEGIN 0 */
 int _write(int file, char *ptr, int len)
 {
-    // Wysyłamy surowe dane przez UART w trybie blokującym (polling)
-    // Timeout 10ms wystarczy na małe paczki tekstu
     HAL_UART_Transmit(&huart3, (uint8_t *)ptr, len, 10);
     return len;
 }
@@ -111,27 +109,17 @@ void dwt_init(void)
 int repeat = 0;
 
 SemaphoreHandle_t sem_100;
-SemaphoreHandle_t sem_200;
-SemaphoreHandle_t sem_500;
-SemaphoreHandle_t sem_1000;
-SemaphoreHandle_t sem_5000;
-SemaphoreHandle_t sem_10000;
 
 static uint64_t t_100[SAMPLES];
-static uint64_t t_200[SAMPLES];
-static uint64_t t_500[SAMPLES];
-static uint64_t t_1000[SAMPLES];
-static uint64_t t_5000[SAMPLES];
-static uint64_t t_10000[SAMPLES];
 
-volatile bool done_10000 = false;
+volatile bool done_100 = false;
 
 void reset_series(void)
 {
-    done_10000 = false;
+    done_100 = false;
     for (int i = 0; i < SAMPLES; i++)
     {
-        t_100[i] = t_200[i] = t_500[i] = t_1000[i] = t_5000[i] = t_10000[i] = 0;
+        t_100[i] = 0;
     }
 }
 
@@ -141,78 +129,37 @@ void Task100(void *arg)
     while (idx < SAMPLES)
     {
         xSemaphoreTake(sem_100, portMAX_DELAY);
-        //        printf("siema.\n");
         t_100[idx++] = get_cycles();
         if (idx >= SAMPLES)
         {
-            done_10000 = true;
+            done_100 = true;
         }
     }
-
     vTaskDelete(NULL);
 }
 
 void Task200(void *arg)
 {
-    int idx = 0;
-    while (idx < SAMPLES)
-    {
-        xSemaphoreTake(sem_200, portMAX_DELAY);
-        t_200[idx++] = get_cycles();
-    }
-
     vTaskDelete(NULL);
 }
 
 void Task500(void *arg)
 {
-    int idx = 0;
-    while (idx < SAMPLES)
-    {
-        xSemaphoreTake(sem_500, portMAX_DELAY);
-        t_500[idx++] = get_cycles();
-    }
     vTaskDelete(NULL);
 }
 
 void Task1000(void *arg)
 {
-    int idx = 0;
-    while (idx < SAMPLES)
-    {
-        if (xSemaphoreTake(sem_1000, portMAX_DELAY) == pdTRUE)
-        {
-            t_1000[idx++] = get_cycles();
-        }
-    }
-
     vTaskDelete(NULL);
 }
 
 void Task5000(void *arg)
 {
-    int idx = 0;
-    while (idx < SAMPLES)
-    {
-        if (xSemaphoreTake(sem_5000, portMAX_DELAY) == pdTRUE)
-        {
-            t_5000[idx++] = get_cycles();
-        }
-    }
     vTaskDelete(NULL);
 }
 
 void Task10000(void *arg)
 {
-    int idx = 0;
-    while (idx < SAMPLES)
-    {
-        if (xSemaphoreTake(sem_10000, portMAX_DELAY) == pdTRUE)
-        {
-            t_10000[idx++] = get_cycles();
-        }
-    }
-    done_10000 = true;
     vTaskDelete(NULL);
 }
 
